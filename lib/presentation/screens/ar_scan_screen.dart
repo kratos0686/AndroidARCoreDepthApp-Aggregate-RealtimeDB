@@ -11,32 +11,18 @@ import '../providers/providers.dart';
 /// 3. If not supported, falls back to WebAR using WebView
 /// 
 /// This ensures the app works on all devices, even those without AR capabilities.
-class ARScanScreen extends ConsumerStatefulWidget {
+class ARScanScreen extends ConsumerWidget {
   const ARScanScreen({super.key});
 
   @override
-  ConsumerState<ARScanScreen> createState() => _ARScanScreenState();
-}
-
-class _ARScanScreenState extends ConsumerState<ARScanScreen> {
-  @override
-  void initState() {
-    super.initState();
-    // AR capability check will be done in build() method
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     // Watch AR capability provider
     final arCapabilityAsync = ref.watch(arCapabilityProvider);
     
     return arCapabilityAsync.when(
       data: (hasAR) {
-        // Update global AR mode state
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          ref.read(arModeProvider.notifier).state = hasAR ? 'native' : 'webview';
-        });
-        
+        // Show appropriate view based on AR capability
+        // The arModeProvider will be updated by other components if needed
         return hasAR ? const NativeARView() : const WebARFallbackView();
       },
       loading: () {
@@ -57,11 +43,6 @@ class _ARScanScreenState extends ConsumerState<ARScanScreen> {
         );
       },
       error: (error, stack) {
-        // Default to WebAR on error
-        WidgetsBinding.instance.addPostFrameCallback((_) {
-          ref.read(arModeProvider.notifier).state = 'webview';
-        });
-        
         return Scaffold(
           appBar: AppBar(
             title: const Text('AR Scanner'),

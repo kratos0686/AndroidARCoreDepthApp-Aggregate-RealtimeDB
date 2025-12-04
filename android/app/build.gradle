@@ -23,7 +23,7 @@ if (flutterVersionName == null) {
 }
 
 android {
-    namespace "com.example.android_arcore_depth_app_aggregate_realtimedb"
+    namespace "com.arscanner.android_arcore_depth_app"
     compileSdk flutter.compileSdkVersion
     ndkVersion flutter.ndkVersion
 
@@ -41,7 +41,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "com.example.android_arcore_depth_app_aggregate_realtimedb"
+        applicationId "com.arscanner.android_arcore_depth_app"
         // Minimum SDK 24 (Android 7.0) for ARCore and modern Android features
         minSdkVersion 24
         targetSdkVersion flutter.targetSdkVersion
