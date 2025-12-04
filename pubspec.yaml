@@ -1,5 +1,5 @@
-name: room_scanner
-description: A new Flutter project.
+name: android_arcore_depth_app_aggregate_realtimedb
+description: ARCore depth scanning app with AI analysis, cloud sync, and export capabilities for water damage restoration professionals.
 publish_to: 'none'
 version: 1.0.0+1
 
@@ -9,12 +9,55 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  
+  # State Management
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+  
+  # Database
+  drift: ^2.16.0
+  sqlite3_flutter_libs: ^0.5.20
+  path_provider: ^2.1.2
+  path: ^1.9.0
+  
+  # Firebase
+  firebase_core: ^2.27.0
+  firebase_auth: ^4.17.8
+  firebase_firestore: ^4.15.8
+  firebase_storage: ^11.6.9
+  cloud_firestore: ^4.15.8
+  
+  # AI/ML
+  google_generative_ai: ^0.2.2
+  flutter_dotenv: ^5.1.0
+  
+  # AR & 3D
+  arcore_flutter_plugin: ^0.1.0
+  webview_flutter: ^4.5.0
+  
+  # Permissions
+  permission_handler: ^11.3.0
+  
+  # UI
   cupertino_icons: ^1.0.6
+  
+  # Utilities
+  intl: ^0.19.0
+  uuid: ^4.3.3
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
   flutter_lints: ^3.0.0
+  
+  # Code Generation
+  build_runner: ^2.4.8
+  drift_dev: ^2.16.0
+  riverpod_generator: ^2.3.11
+  custom_lint: ^0.6.2
+  riverpod_lint: ^2.3.10
 
 flutter:
   uses-material-design: true
+  assets:
+    - .env
