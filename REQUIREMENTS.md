@@ -1,629 +1,599 @@
 # Project Requirements Document
 
-## Android ARCore Depth App - Room Scanner
+## ARCore Depth App with AI Analysis - Flutter Edition
 
-**Project Name**: Android ARCore Depth Room Scanner  
-**Version**: 1.0  
-**Last Updated**: 2025-11-21  
-**Status**: Documentation Complete, Implementation Pending
+**Project Name**: Android ARCore Depth App - Aggregate RealtimeDB  
+**Version**: 2.0  
+**Last Updated**: 2025-12-04  
+**Status**: Flutter Architecture Established
 
 ---
 
 ## 1. Executive Summary
 
-An Android application for professional 3D room scanning using ARCore depth sensing, with ML-powered damage detection, offline-first data storage, and cloud synchronization capabilities.
+A cross-platform Flutter application for professional 3D room scanning using ARCore/ARKit depth sensing, with Gemini AI-powered damage analysis, offline-first Drift database, and Firebase cloud synchronization. Supports non-AR devices through WebAR fallback.
 
 **Primary Use Case**: Water damage restoration professionals scanning rooms to:
 
-- Capture accurate 3D measurements
-- Detect and document damaged areas
-- Generate drying plans and reports
-- Sync data to cloud for team collaboration
+- Capture accurate 3D measurements via AR
+- Detect and document damaged areas with AI
+- Generate industry-standard export formats (Xactimate .ESX, MICA XML)
+- Sync data to Firebase for team collaboration
+- Work offline-first with automatic cloud sync
 
 ---
 
-## 2. Functional Requirements
+## 2. Platform & Technology Stack
 
-### 2.1 ARCore 3D Scanning (FR-001)
+### 2.1 Development Platform
+
+| Component | Technology | Version |
+|-----------|------------|---------|
+| **Framework** | Flutter | 3.0+ |
+| **Language** | Dart | 3.0+ |
+| **Platform** | Android (primary), iOS (future) | API 24+ / iOS 12+ |
+
+### 2.2 Architecture Pattern
+
+**Clean Architecture + MVVM** with Flutter-specific layers:
+
+```
+┌─────────────────────────────────────────┐
+│     Presentation Layer (UI)             │
+│  ├─ Screens (Flutter Widgets)           │
+│  ├─ Riverpod Providers (State)          │
+│  └─ ViewModels (Business Logic)         │
+└─────────────────────────────────────────┘
+                 ↓ ↑
+┌─────────────────────────────────────────┐
+│        Domain Layer (Core)              │
+│  ├─ Entities (Business Models)          │
+│  ├─ Use Cases (Business Rules)          │
+│  └─ Services (AI, Export, AR)           │
+└─────────────────────────────────────────┘
+                 ↓ ↑
+┌─────────────────────────────────────────┐
+│       Data Layer (Sources)              │
+│  ├─ Drift Database (Local SQLite)       │
+│  ├─ Firebase (Remote Firestore/Storage) │
+│  ├─ Repositories (Abstraction)          │
+│  └─ Platform Channels (ARCore/ARKit)    │
+└─────────────────────────────────────────┘
+```
+
+### 2.3 Core Dependencies
+
+```yaml
+# State Management & Architecture
+flutter_riverpod: ^2.5.1
+riverpod_annotation: ^2.3.5
+
+# Database (Offline-First)
+drift: ^2.16.0
+sqlite3_flutter_libs: ^0.5.20
+path_provider: ^2.1.2
+
+# Cloud Backend
+firebase_core: ^2.27.0
+firebase_auth: ^4.17.8
+firebase_firestore: ^4.15.8
+firebase_storage: ^11.6.9
+
+# AI Integration
+google_generative_ai: ^0.2.2
+flutter_dotenv: ^5.1.0
+
+# AR & Fallback
+arcore_flutter_plugin: ^0.1.0
+webview_flutter: ^4.5.0
+
+# Permissions & Utilities
+permission_handler: ^11.3.0
+```
+
+---
+
+## 3. Functional Requirements
+
+### 3.1 AR Scanning with Fallback (FR-001)
 
 **Priority**: High  
-**Status**: Not Implemented
+**Status**: Scaffold Ready
 
 #### Requirements
 
-- **FR-001.1**: Initialize ARCore session with depth API enabled
-- **FR-001.2**: Detect horizontal planes (floors, tables)
-- **FR-001.3**: Detect vertical planes (walls, doors)
-- **FR-001.4**: Capture point cloud data from depth sensor
-- **FR-001.5**: Calculate room dimensions (length, width, height)
-- **FR-001.6**: Measure distances between user-placed anchors
-- **FR-001.7**: Export point cloud data in standard format (PLY/OBJ)
-- **FR-001.8**: Track AR session state and provide user feedback
+- **FR-001.1**: Detect AR capability on device launch
+- **FR-001.2**: Native ARCore for Android devices with ARCore support
+- **FR-001.3**: Native ARKit for iOS devices (future)
+- **FR-001.4**: WebAR fallback using WebView for non-AR devices
+- **FR-001.5**: Capture point cloud data and room dimensions
+- **FR-001.6**: Export scan data in standard formats (PLY/OBJ)
+- **FR-001.7**: Seamless fallback UX (auto-detect and switch)
 
 #### Acceptance Criteria
 
-- Room dimensions accurate within ±5cm
-- Point cloud density sufficient for 3D reconstruction
-- Real-time tracking with <100ms latency
-- Graceful handling of tracking loss
+- App installs and runs on non-AR devices without crashing
+- AR features optional (AndroidManifest: `required="false"`)
+- WebAR provides basic measurement capabilities
+- User notified clearly which mode is active
 
 ---
 
-### 2.2 Machine Learning Analysis (FR-002)
+### 3.2 Gemini AI Analysis (FR-002)
 
 **Priority**: High  
-**Status**: Not Implemented
+**Status**: Service Stub Ready
 
 #### Requirements
 
-- **FR-002.1**: Integrate ML Kit Object Detection API
-- **FR-002.2**: Integrate ML Kit Image Labeling API
-- **FR-002.3**: Detect damage types: cracks, water stains, holes
-- **FR-002.4**: Estimate material types: wood, drywall, concrete, tile
-- **FR-002.5**: Provide confidence scores for all detections
-- **FR-002.6**: Map detected issues to 3D spatial coordinates
-- **FR-002.7**: Support custom TensorFlow Lite models
-- **FR-002.8**: Run inference on-device (no cloud dependency)
+- **FR-002.1**: Integration with Google Gemini API via `google_generative_ai`
+- **FR-002.2**: Analyze images for damage detection (water stains, cracks, mold)
+- **FR-002.3**: Material identification (drywall, wood, tile, concrete)
+- **FR-002.4**: Generate damage severity reports
+- **FR-002.5**: Confidence scoring for AI predictions
+- **FR-002.6**: API key management via `.env` file
 
 #### Acceptance Criteria
 
-- Detection confidence >70% for common damage types
-- Inference time <500ms per image
-- Support batch processing of images
-- Graceful fallback if GPU acceleration unavailable
+- Gemini API calls execute successfully with valid key
+- Response parsed and stored in Drift database
+- Error handling for rate limits and network issues
+- No hardcoded API keys in source code
 
 ---
 
-### 2.3 Offline Data Storage (FR-003)
+### 3.3 Offline-First Drift Database (FR-003)
 
 **Priority**: High  
-**Status**: Partially Implemented (Schema only)
+**Status**: Scaffold Ready
 
 #### Requirements
 
-- **FR-003.1**: Implement Room Database with entities:
-  - `ScanEntity`: Room scan metadata and measurements
-  - `NoteEntity`: User annotations and observations
-  - `ImageEntity`: Captured images with ML analysis results
-- **FR-003.2**: Provide DAO interfaces with CRUD operations
-- **FR-003.3**: Support reactive queries with Kotlin Flow
-- **FR-003.4**: Support reactive queries with RxJava
-- **FR-003.5**: Implement type converters for complex data
-- **FR-003.6**: Track sync status (synced/unsynced)
-- **FR-003.7**: Support database migrations
-- **FR-003.8**: Enable database backup to device storage
+- **FR-003.1**: Drift (SQLite) database for local persistence
+- **FR-003.2**: Tables: Scans, Notes, Images, SyncQueue
+- **FR-003.3**: Type converters for complex Dart objects (JSON, DateTime)
+- **FR-003.4**: Reactive queries with Dart Streams
+- **FR-003.5**: Track sync status for each record
+- **FR-003.6**: Migration support for schema changes
+- **FR-003.7**: Data available offline immediately
 
 #### Acceptance Criteria
 
 - All data persists across app restarts
-- Queries return in <100ms for typical datasets
-- No data loss during migrations
+- Queries execute in <100ms
+- Migrations tested with no data loss
 - Foreign key constraints enforced
 
 ---
 
-### 2.4 Cloud Synchronization (FR-004)
+### 3.4 Firebase Cloud Sync (FR-004)
 
 **Priority**: Medium  
-**Status**: Partially Implemented (Firebase utilities only)
+**Status**: Provider Scaffold Ready
 
 #### Requirements
 
-- **FR-004.1**: Sync scan data to Firebase Firestore
-- **FR-004.2**: Upload images to Firebase Storage
-- **FR-004.3**: Upload point cloud files to Firebase Storage
-- **FR-004.4**: Implement background sync with WorkManager
-- **FR-004.5**: Handle conflict resolution (last-write-wins)
-- **FR-004.6**: Retry failed uploads with exponential backoff
-- **FR-004.7**: Support selective sync (WiFi-only option)
-- **FR-004.8**: Implement Firebase Authentication
+- **FR-004.1**: Firestore for scan metadata and notes
+- **FR-004.2**: Firebase Storage for images and point clouds
+- **FR-004.3**: Firebase Auth for user authentication
+- **FR-004.4**: Background sync when online
+- **FR-004.5**: Conflict resolution (last-write-wins or timestamp-based)
+- **FR-004.6**: Exponential backoff for failed uploads
+- **FR-004.7**: WiFi-only sync option
 
 #### Acceptance Criteria
 
-- Sync completes within 30s for typical scan
-- No duplicate uploads
 - Offline changes sync automatically when online
-- User can view sync status and retry manually
+- No duplicate uploads
+- User can view sync status in UI
+- Manual retry option available
 
 ---
 
-### 2.5 User Interface (FR-005)
-
-**Priority**: High  
-**Status**: Not Implemented
-
-#### Requirements
-
-- **FR-005.1**: Scan List Screen (Jetpack Compose):
-  - Display all scans with thumbnails
-  - Show sync status indicators
-  - Support pull-to-refresh
-  - Search and filter functionality
-- **FR-005.2**: Scan Detail Screen (Jetpack Compose):
-  - Display room dimensions and volume
-  - Show captured images in gallery
-  - Display ML analysis results
-  - List user notes with timestamps
-- **FR-005.3**: AR Scanner Screen:
-  - Live camera feed with AR overlay
-  - Plane detection visualization
-  - Measurement tools UI
-  - Capture button and controls
-- **FR-005.4**: Material Design 3 theming
-- **FR-005.5**: Dark mode support
-- **FR-005.6**: Responsive layouts for tablets
-- **FR-005.7**: Loading states and error handling
-
-#### Acceptance Criteria
-
-- UI responds to user input in <16ms (60fps)
-- No visual jank during scrolling
-- Accessibility features (TalkBack compatible)
-- UI matches Material Design 3 guidelines
-
----
-
-### 2.6 Drying Plan Generation (FR-006)
+### 3.5 Export Service (FR-005)
 
 **Priority**: Medium  
-**Status**: Not Implemented
+**Status**: Service Stub Ready
 
 #### Requirements
 
-- **FR-006.1**: Calculate affected area from scan data
-- **FR-006.2**: Recommend equipment based on:
-  - Room volume
-  - Damage severity
-  - Material types
-- **FR-006.3**: Generate drying timeline
-- **FR-006.4**: Provide priority action items
-- **FR-006.5**: Export plan as PDF
-- **FR-006.6**: Support customization of recommendations
+- **FR-005.1**: Export scans to Xactimate format (.ESX)
+- **FR-005.2**: Export scans to MICA format (XML)
+- **FR-005.3**: Include room dimensions, materials, damage areas
+- **FR-005.4**: Embed AI analysis results in export
+- **FR-005.5**: Save exports to device storage
+- **FR-005.6**: Share exports via platform share sheet
 
 #### Acceptance Criteria
 
-- Reasonable equipment recommendations
-- Timeline based on industry standards
-- PDF export includes all scan data and images
+- Exported files valid for Xactimate import
+- MICA XML conforms to industry standards
+- Files include all relevant scan data
+- Export completes in <5 seconds for typical scan
 
 ---
 
-### 2.7 Authentication & Permissions (FR-007)
+### 3.6 Material 3 UI (FR-006)
 
 **Priority**: High  
-**Status**: Partially Implemented (Manifest only)
+**Status**: Theme Ready in main.dart
 
 #### Requirements
 
-- **FR-007.1**: Request camera permission at runtime
-- **FR-007.2**: Request storage permission (for exports)
-- **FR-007.3**: Firebase Authentication (Email/Google Sign-In)
-- **FR-007.4**: User profile management
-- **FR-007.5**: Check ARCore compatibility on launch
-- **FR-007.6**: Prompt ARCore installation if missing
+- **FR-006.1**: Material Design 3 theming
+- **FR-006.2**: Dynamic color support (Material You)
+- **FR-006.3**: Dark mode support
+- **FR-006.4**: Responsive layouts (phone, tablet)
+- **FR-006.5**: Accessibility (screen reader support)
+- **FR-006.6**: Loading states and error handling
 
 #### Acceptance Criteria
 
-- Graceful handling of denied permissions
-- Clear instructions for users
-- No crashes if ARCore unavailable
+- UI matches Material 3 guidelines
+- Theme switches smoothly
+- No visual jank (60fps)
+- Accessible to users with disabilities
 
 ---
 
-## 3. Non-Functional Requirements
+### 3.7 Permissions Management (FR-007)
 
-### 3.1 Performance (NFR-001)
+**Priority**: High  
+**Status**: Permission Handler Configured
 
-- **NFR-001.1**: App launch time <2s on mid-range devices
-- **NFR-001.2**: AR tracking initialization <1s
-- **NFR-001.3**: Database queries <100ms for typical datasets
-- **NFR-001.4**: ML inference <500ms per image
-- **NFR-001.5**: Memory usage <200MB during normal operation
-- **NFR-001.6**: Battery drain <10% per hour of active scanning
+#### Requirements
 
-### 3.2 Reliability (NFR-002)
+- **FR-007.1**: Camera permission (for AR and image capture)
+- **FR-007.2**: Storage permission (for exports)
+- **FR-007.3**: Internet permission (for Firebase sync)
+- **FR-007.4**: Graceful handling of denied permissions
+- **FR-007.5**: Request permissions at runtime (Android 6+)
 
-- **NFR-002.1**: No data loss during crashes
-- **NFR-002.2**: 99.9% uptime for local features
-- **NFR-002.3**: Graceful degradation if Firebase unavailable
-- **NFR-002.4**: Automatic crash reporting (Firebase Crashlytics)
+#### Acceptance Criteria
 
-### 3.3 Compatibility (NFR-003)
-
-- **NFR-003.1**: Support Android 7.0 (API 24) and above
-- **NFR-003.2**: ARCore 1.40.0+ required
-- **NFR-003.3**: Support devices from ~50 manufacturers
-- **NFR-003.4**: Test on min 3 device form factors
-
-### 3.4 Security (NFR-004)
-
-- **NFR-004.1**: Encrypt sensitive data in Room Database
-- **NFR-004.2**: Use Firebase Security Rules
-- **NFR-004.3**: No hardcoded API keys or secrets
-- **NFR-004.4**: ProGuard obfuscation in release builds
-- **NFR-004.5**: HTTPS for all network traffic
-
-### 3.5 Maintainability (NFR-005)
-
-- **NFR-005.1**: Follow MVVM architecture pattern
-- **NFR-005.2**: Minimum 80% code documentation
-- **NFR-005.3**: Unit test coverage >60%
-- **NFR-005.4**: Instrumented test coverage >40%
-- **NFR-005.5**: CI/CD pipeline for automated testing
+- App requests permissions when needed
+- Clear rationale shown to user
+- App functions with limited permissions where possible
+- No crashes on permission denial
 
 ---
 
-## 4. Technical Architecture
+## 4. Non-Functional Requirements
 
-### 4.1 Technology Stack
+### 4.1 Performance (NFR-001)
 
-| Component | Technology | Version |
-|-----------|------------|---------|
-| Language | Kotlin | 1.9.20 |
-| Build Tool | Gradle | 8.2 |
-| UI Framework | Jetpack Compose | BOM 2023.10.01 |
-| AR SDK | ARCore | 1.40.0 |
-| ML Framework | ML Kit + TensorFlow Lite | 2.14.0 |
-| Database | Room | 2.6.1 |
-| Async | RxJava 3 + Coroutines | 3.1.8 / 1.7.3 |
-| Cloud Platform | Firebase | BOM 32.7.0 |
-| Min SDK | Android 7.0 | API 24 |
-| Target SDK | Android 14 | API 34 |
+- **NFR-001.1**: App launch time <3s on mid-range devices
+- **NFR-001.2**: Database queries <100ms
+- **NFR-001.3**: Gemini API response <3s (network dependent)
+- **NFR-001.4**: Memory usage <250MB during scanning
+- **NFR-001.5**: Battery drain <15% per hour of active use
 
-### 4.2 Architecture Pattern
+### 4.2 Reliability (NFR-002)
 
-**MVVM (Model-View-ViewModel)** with clean architecture layers:
+- **NFR-002.1**: No data loss on crashes
+- **NFR-002.2**: Offline-first: works without internet
+- **NFR-002.3**: Graceful degradation (AR → WebAR fallback)
+- **NFR-002.4**: Error logging with Firebase Crashlytics (future)
 
-```
-┌─────────────────────────────────────────┐
-│        Presentation Layer               │
-│  ├─ Compose UI (View)                   │
-│  └─ ViewModel (State Management)        │
-└─────────────────────────────────────────┘
-                 ↓ ↑
-┌─────────────────────────────────────────┐
-│         Domain Layer                    │
-│  └─ Use Cases (Business Logic)          │
-└─────────────────────────────────────────┘
-                 ↓ ↑
-┌─────────────────────────────────────────┐
-│          Data Layer                     │
-│  ├─ Repository (Abstraction)            │
-│  ├─ Room Database (Local)               │
-│  ├─ Firebase (Remote)                   │
-│  ├─ ARCore Manager (Hardware)           │
-│  └─ ML Kit Analyzer (ML)                │
-└─────────────────────────────────────────┘
-```
+### 4.3 Compatibility (NFR-003)
 
-### 4.3 Data Flow
+- **NFR-003.1**: Android 7.0+ (API 24)
+- **NFR-003.2**: ARCore optional (not required for install)
+- **NFR-003.3**: iOS 12+ (future support)
+- **NFR-003.4**: Tested on min 3 device types
 
-**Reactive Data Flow with RxJava & Flow:**
+### 4.4 Security (NFR-004)
 
-1. **User Action** → UI Event
-2. **ViewModel** → Call Use Case
-3. **Use Case** → Execute business logic
-4. **Repository** → Coordinate data sources
-5. **Data Sources** → Fetch/Store data
-6. **Observable/Flow** → Emit updates
-7. **ViewModel** → Update UI state
-8. **Compose UI** → Recompose with new state
+- **NFR-004.1**: API keys stored in `.env` (not in source)
+- **NFR-004.2**: Firebase Security Rules for Firestore/Storage
+- **NFR-004.3**: HTTPS for all network traffic
+- **NFR-004.4**: User authentication required for cloud sync
+- **NFR-004.5**: No sensitive data in logs
+
+### 4.5 Maintainability (NFR-005)
+
+- **NFR-005.1**: Clean Architecture pattern enforced
+- **NFR-005.2**: Code generation for Drift and Riverpod
+- **NFR-005.3**: Documentation for all services and providers
+- **NFR-005.4**: Unit tests for business logic
+- **NFR-005.5**: Widget tests for UI components
 
 ---
 
-## 5. Dependencies
+## 5. Data Models
 
-### 5.1 Core Dependencies
+### 5.1 Drift Database Schema (Dart)
 
-```gradle
-// Core Android
-androidx.core:core-ktx:1.12.0
-androidx.appcompat:appcompat:1.6.1
-androidx.lifecycle:lifecycle-runtime-ktx:2.6.2
+#### Scans Table
 
-// Jetpack Compose
-androidx.compose:compose-bom:2023.10.01
-androidx.compose.material3:material3
-androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2
-
-// ARCore
-com.google.ar:core:1.40.0
-com.google.ar.sceneform:core:1.17.1
-
-// ML Kit & TensorFlow Lite
-org.tensorflow:tensorflow-lite:2.14.0
-org.tensorflow:tensorflow-lite-support:0.4.4
-
-// Room Database
-androidx.room:room-runtime:2.6.1
-androidx.room:room-ktx:2.6.1
-
-// RxJava
-io.reactivex.rxjava3:rxjava:3.1.8
-io.reactivex.rxjava3:rxandroid:3.0.2
-
-// Firebase (using BoM)
-com.google.firebase:firebase-bom:32.7.0
-com.google.firebase:firebase-firestore
-com.google.firebase:firebase-storage
-com.google.firebase:firebase-auth
+```dart
+class Scans extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get roomName => text()();
+  DateTimeColumn get timestamp => dateTime()();
+  RealColumn get length => real()();
+  RealColumn get width => real()();
+  RealColumn get height => real()();
+  RealColumn get area => real()();
+  RealColumn get volume => real()();
+  TextColumn get pointCloudPath => text().nullable()();
+  BoolColumn get isSynced => boolean().withDefault(const Constant(false))();
+  TextColumn get firebaseId => text().nullable()();
+}
 ```
 
----
+#### Notes Table
 
-## 6. Data Models
-
-### 6.1 Room Database Schema
-
-#### ScanEntity
-
-```kotlin
-@Entity(tableName = "scans")
-data class ScanEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
-    val roomName: String,
-    val timestamp: Long,
-    val length: Float,
-    val width: Float,
-    val height: Float,
-    val area: Float,
-    val volume: Float,
-    val pointCloudPath: String?,
-    val isSynced: Boolean = false,
-    val firebaseId: String? = null
-)
-```
-
-#### NoteEntity
-
-```kotlin
-@Entity(
-    tableName = "notes",
-    foreignKeys = [ForeignKey(
-        entity = ScanEntity::class,
-        parentColumns = ["id"],
-        childColumns = ["scanId"],
-        onDelete = ForeignKey.CASCADE
-    )]
-)
-data class NoteEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Long = 0,
-    val scanId: Long,
-    val title: String,
-    val content: String,
-    val category: String,
-    val timestamp: Long,
-    val positionX: Float?,
-    val positionY: Float?,
-    val positionZ: Float?
-)
-```
-
----
-
-## 7. API Contracts
-
-### 7.1 Repository Interface
-
-```kotlin
-interface RoomScanRepository {
-    // Scans
-    fun getAllScans(): Flow<List<RoomScan>>
-    fun getScanById(id: Long): Flow<RoomScan?>
-    suspend fun insertScan(scan: RoomScan): Long
-    suspend fun updateScan(scan: RoomScan)
-    suspend fun deleteScan(id: Long)
-    
-    // Notes
-    fun getNotesForScan(scanId: Long): Flow<List<Note>>
-    suspend fun insertNote(note: Note): Long
-    
-    // Sync
-    fun syncToFirebase(): Completable
-    fun getUnsyncedScans(): Flow<List<RoomScan>>
+```dart
+class Notes extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get scanId => integer().references(Scans, #id, onDelete: KeyAction.cascade)();
+  TextColumn get title => text()();
+  TextColumn get content => text()();
+  TextColumn get category => text()();
+  DateTimeColumn get timestamp => dateTime()();
+  RealColumn get positionX => real().nullable()();
+  RealColumn get positionY => real().nullable()();
+  RealColumn get positionZ => real().nullable()();
 }
 ```
 
 ---
 
-## 8. Implementation Phases
+## 6. Riverpod State Management
 
-### Phase 1: Foundation (Weeks 1-2)
+### 6.1 Provider Structure
 
-- ✅ Project setup and dependencies
-- ✅ Documentation
-- 🔲 Room Database implementation
-- 🔲 Basic UI screens (Compose)
-- 🔲 Navigation setup
+```dart
+// Database Provider
+@riverpod
+AppDatabase appDatabase(AppDatabaseRef ref) {
+  return AppDatabase();
+}
 
-### Phase 2: ARCore Integration (Weeks 3-4)
+// Repository Providers
+@riverpod
+ScanRepository scanRepository(ScanRepositoryRef ref) {
+  final db = ref.watch(appDatabaseProvider);
+  return ScanRepositoryImpl(db);
+}
 
-- 🔲 ARCore session management
-- 🔲 Plane detection
+// Firebase Providers
+@riverpod
+FirebaseAuth firebaseAuth(FirebaseAuthRef ref) {
+  return FirebaseAuth.instance;
+}
+
+@riverpod
+FirebaseFirestore firebaseFirestore(FirebaseFirestoreRef ref) {
+  return FirebaseFirestore.instance;
+}
+
+// Service Providers
+@riverpod
+GeminiService geminiService(GeminiServiceRef ref) {
+  return GeminiService();
+}
+
+@riverpod
+ExportService exportService(ExportServiceRef ref) {
+  return ExportService();
+}
+```
+
+---
+
+## 7. Service Interfaces
+
+### 7.1 GeminiService
+
+```dart
+class GeminiService {
+  Future<AnalysisResult> analyzeImage(String imagePath) async {
+    // Call Gemini API with image
+    // Return damage analysis and material identification
+  }
+  
+  Future<String> generateReport(ScanData scanData) async {
+    // Generate text report using Gemini
+  }
+}
+```
+
+### 7.2 ExportService
+
+```dart
+class ExportService {
+  Future<File> exportToXactimate(ScanData scanData) async {
+    // Generate .ESX file format
+  }
+  
+  Future<File> exportToMICA(ScanData scanData) async {
+    // Generate MICA XML file format
+  }
+  
+  Future<void> shareScanExport(File exportFile) async {
+    // Use platform share sheet
+  }
+}
+```
+
+---
+
+## 8. Implementation Status
+
+### Phase 1: Foundation ✅
+
+- ✅ Flutter project structure
+- ✅ pubspec.yaml with all dependencies
+- ✅ REQUIREMENTS.md updated
+- ✅ .env file for API keys
+- ✅ Android configuration (minSdkVersion 24, AR optional)
+- ✅ Riverpod provider scaffolding
+- ✅ Drift database scaffolding
+- ✅ Firebase initialization in main.dart
+- ✅ Material 3 theme setup
+- ✅ Service stubs (Gemini, Export)
+- ✅ AR screen stub (with fallback logic)
+
+### Phase 2: Database Implementation 🔲
+
+- 🔲 Complete Drift table definitions
+- 🔲 Implement DAOs and repositories
+- 🔲 Add type converters
+- 🔲 Write database migrations
+- 🔲 Create repository implementations
+
+### Phase 3: UI Screens 🔲
+
+- 🔲 Scan list screen
+- 🔲 Scan detail screen
+- 🔲 AR scan screen (full implementation)
+- 🔲 Settings screen
+- 🔲 Authentication screens
+
+### Phase 4: AR & WebAR 🔲
+
+- 🔲 Native ARCore integration
+- 🔲 WebAR fallback implementation
 - 🔲 Point cloud capture
 - 🔲 Measurement tools
-- 🔲 3D visualization
 
-### Phase 3: ML Integration (Weeks 5-6)
+### Phase 5: AI Integration 🔲
 
-- 🔲 ML Kit object detection
-- 🔲 Image labeling
-- 🔲 Custom TFLite model integration
-- 🔲 Damage detection logic
-- 🔲 Material type estimation
+- 🔲 Complete Gemini API implementation
+- 🔲 Image analysis pipeline
+- 🔲 Result parsing and storage
+- 🔲 Error handling and retry logic
 
-### Phase 4: Firebase Sync (Week 7)
+### Phase 6: Export Features 🔲
 
-- 🔲 Firestore integration
-- 🔲 Storage integration
-- 🔲 Background sync
-- 🔲 Authentication
+- 🔲 Xactimate .ESX generator
+- 🔲 MICA XML generator
+- 🔲 File management
+- 🔲 Share functionality
 
-### Phase 5: Advanced Features (Week 8)
-
-- 🔲 Drying plan generation
-- 🔲 PDF export
-- 🔲 Report generation
-
-### Phase 6: Testing & Polish (Weeks 9-10)
+### Phase 7: Testing & Polish 🔲
 
 - 🔲 Unit tests
-- 🔲 Instrumented tests
-- 🔲 UI/UX improvements
+- 🔲 Widget tests
+- 🔲 Integration tests
 - 🔲 Performance optimization
 - 🔲 Bug fixes
 
 ---
 
-## 9. Testing Strategy
+## 9. Setup Instructions
 
-### 9.1 Unit Tests
+### 9.1 Initial Setup
+
+After cloning the repository:
+
+```bash
+# Create platform folders (if missing)
+flutter create .
+
+# Install dependencies
+flutter pub get
+
+# Run code generation for Drift and Riverpod
+dart run build_runner build --delete-conflicting-outputs
+
+# Add your Gemini API key to .env
+# Edit .env and replace placeholder with actual key
+```
+
+### 9.2 Firebase Configuration
+
+1. Create Firebase project at console.firebase.google.com
+2. Add Android app with package name: `com.example.android_arcore_depth_app_aggregate_realtimedb`
+3. Download `google-services.json` → `android/app/`
+4. Enable Authentication, Firestore, Storage in Firebase Console
+
+### 9.3 Run the App
+
+```bash
+# Debug build
+flutter run
+
+# Release build
+flutter build apk --release
+```
+
+---
+
+## 10. Testing Strategy
+
+### 10.1 Unit Tests
 
 - Repository logic
-- Use case business logic
+- Service implementations (Gemini, Export)
 - Data transformations
-- ViewModel state management
+- Business logic in use cases
 
-### 9.2 Instrumented Tests
+### 10.2 Widget Tests
 
-- Database operations
-- UI components (Compose tests)
+- UI components
+- State management (Riverpod providers)
 - Navigation flows
 
-### 9.3 Manual Testing
+### 10.3 Integration Tests
 
-- ARCore tracking on real devices
-- ML model accuracy
+- Database operations
+- Firebase sync
+- AR functionality (on physical devices)
+
+### 10.4 Manual Testing
+
+- AR on multiple devices
+- WebAR fallback
 - Offline/online transitions
-- Cross-device compatibility
+- Export file validity
 
 ---
 
-## 10. Deployment
+## 11. Deployment
 
-### 10.1 Build Variants
+### 11.1 Android
 
-- **Debug**: Development builds with logging
-- **Release**: Production builds with ProGuard
+- Min SDK: API 24 (Android 7.0)
+- Target SDK: API 34 (Android 14)
+- ARCore: Optional (required="false")
+- Distribution: Google Play Store
 
-### 10.2 Distribution
+### 11.2 iOS (Future)
 
-- Google Play Store (internal testing → beta → production)
-- Enterprise distribution (if applicable)
-
-### 10.3 Release Checklist
-
-- [ ] Firebase configuration complete
-- [ ] Security rules configured
-- [ ] ProGuard rules tested
-- [ ] Signed APK/AAB generated
-- [ ] Tested on min 5 real devices
-- [ ] Crashlytics integrated
-- [ ] Privacy policy published
-- [ ] Play Store listing complete
+- Min iOS: 12.0
+- ARKit: Optional
+- Distribution: App Store
 
 ---
 
-## 11. Risks & Mitigation
+## 12. References
 
-| Risk | Impact | Probability | Mitigation |
-|------|--------|-------------|------------|
-| ARCore compatibility issues | High | Medium | Extensive device testing, fallback modes |
-| ML model accuracy low | Medium | Medium | Custom model training, user feedback loop |
-| Firebase quota exceeded | High | Low | Implement caching, optimize uploads |
-| Performance on low-end devices | Medium | High | Profiling, optimization, min spec requirements |
-| Data loss during sync | High | Low | Robust conflict resolution, local backups |
+### 12.1 Flutter Documentation
 
----
+- [Flutter Official Docs](https://flutter.dev/docs)
+- [Riverpod Documentation](https://riverpod.dev)
+- [Drift (SQLite) Documentation](https://drift.simonbinder.eu)
+- [Firebase for Flutter](https://firebase.flutter.dev)
 
-## 12. Success Metrics
+### 12.2 AR & AI
 
-### 12.1 Technical Metrics
+- [ARCore Flutter Plugin](https://pub.dev/packages/arcore_flutter_plugin)
+- [Google Generative AI Dart](https://pub.dev/packages/google_generative_ai)
+- [WebAR Best Practices](https://developers.google.com/ar/develop/webxr)
 
-- App crash rate <1%
-- ANR rate <0.1%
-- Scan completion rate >90%
-- Sync success rate >95%
+### 12.3 Industry Standards
 
-### 12.2 User Metrics
-
-- Average scan time <5 minutes
-- User retention (Day 7) >40%
-- User satisfaction >4.0/5.0
-- Feature adoption rate >60%
-
----
-
-## 13. Future Enhancements
-
-### 13.1 Roadmap (Post-MVP)
-
-- Multi-room project management
-- Team collaboration features
-- Real-time co-editing
-- Voice notes and annotations
-- Integration with insurance APIs
-- AR repair instruction overlay
-- Cost estimation engine
-- CAD format export
-- iOS version (ARKit)
-
----
-
-## 14. Compliance & Legal
-
-### 14.1 Privacy
-
-- GDPR compliance (EU users)
-- CCPA compliance (California users)
-- Privacy policy required
-- User consent for data collection
-
-### 14.2 Licensing
-
-- Open source libraries: Comply with licenses
-- ARCore: Google Terms of Service
-- Firebase: Google Cloud Terms
-- TensorFlow: Apache 2.0 License
-
----
-
-## 15. References
-
-### 15.1 Documentation
-
-- [ARCore Developer Guide](https://developers.google.com/ar/develop)
-- [ML Kit Documentation](https://developers.google.com/ml-kit)
-- [Firebase Documentation](https://firebase.google.com/docs)
-- [Jetpack Compose Guide](https://developer.android.com/jetpack/compose)
-- [Room Database](https://developer.android.com/training/data-storage/room)
-
-### 15.2 Project Documentation
-
-- [ARCHITECTURE.md](app/Android2.0roomscanner/ARCHITECTURE.md)
-- [README.md](app/Android2.0roomscanner/README.md)
-- [IMPLEMENTATION_SUMMARY.md](app/Android2.0roomscanner/IMPLEMENTATION_SUMMARY.md)
-
----
-
-## Appendix A: Glossary
-
-- **ARCore**: Google's augmented reality platform for Android
-- **Point Cloud**: 3D representation of scanned environment as points
-- **Plane Detection**: ARCore feature to identify flat surfaces
-- **ML Kit**: Google's mobile ML SDK
-- **TFLite**: TensorFlow Lite for mobile ML inference
-- **Room**: Android's SQLite abstraction library
-- **RxJava**: Reactive extensions for JVM
-- **Jetpack Compose**: Android's modern UI toolkit
+- [Xactimate File Format](https://www.xactware.com)
+- [MICA Insurance Standards](https://www.mica.org)
 
 ---
 
 **Document Control:**
 
 - **Author**: AI Code Assistant
-- **Reviewers**: TBD
-- **Approval**: TBD
-- **Next Review Date**: TBD
+- **Platform**: Flutter/Dart
+- **Architecture**: Clean Architecture + MVVM + Riverpod
+- **Last Updated**: 2025-12-04
