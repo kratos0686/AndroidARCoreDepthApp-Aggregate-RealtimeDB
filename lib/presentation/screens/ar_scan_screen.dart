@@ -19,125 +19,88 @@ class ARScanScreen extends ConsumerStatefulWidget {
 }
 
 class _ARScanScreenState extends ConsumerState<ARScanScreen> {
-  bool _isCheckingCapability = true;
-  bool _hasARCapability = false;
-  String _errorMessage = '';
-
   @override
   void initState() {
     super.initState();
-    _checkARCapability();
-  }
-
-  /// Check if device supports native AR
-  /// 
-  /// Sets the AR mode in Riverpod state and determines which view to show
-  Future<void> _checkARCapability() async {
-    try {
-      setState(() {
-        _isCheckingCapability = true;
-        _errorMessage = '';
-      });
-
-      // Watch the AR capability provider
-      final arCapabilityAsync = ref.read(arCapabilityProvider);
-      
-      arCapabilityAsync.when(
-        data: (hasAR) {
-          setState(() {
-            _hasARCapability = hasAR;
-            _isCheckingCapability = false;
-          });
-          
-          // Update global AR mode state
-          ref.read(arModeProvider.notifier).state = hasAR ? 'native' : 'webview';
-          
-          debugPrint('AR Capability: ${hasAR ? "Native AR" : "WebAR Fallback"}');
-        },
-        loading: () {
-          setState(() {
-            _isCheckingCapability = true;
-          });
-        },
-        error: (error, stack) {
-          setState(() {
-            _isCheckingCapability = false;
-            _hasARCapability = false;
-            _errorMessage = 'Failed to check AR capability: $error';
-          });
-          
-          // Default to WebAR on error
-          ref.read(arModeProvider.notifier).state = 'webview';
-        },
-      );
-    } catch (e) {
-      setState(() {
-        _isCheckingCapability = false;
-        _hasARCapability = false;
-        _errorMessage = 'Error checking AR capability: $e';
-      });
-      
-      // Default to WebAR on error
-      ref.read(arModeProvider.notifier).state = 'webview';
-    }
+    // AR capability check will be done in build() method
   }
 
   @override
   Widget build(BuildContext context) {
-    // Show loading while checking AR capability
-    if (_isCheckingCapability) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('AR Scanner'),
-        ),
-        body: const Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              CircularProgressIndicator(),
-              SizedBox(height: 16),
-              Text('Checking AR capability...'),
-            ],
+    // Watch AR capability provider
+    final arCapabilityAsync = ref.watch(arCapabilityProvider);
+    
+    return arCapabilityAsync.when(
+      data: (hasAR) {
+        // Update global AR mode state
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(arModeProvider.notifier).state = hasAR ? 'native' : 'webview';
+        });
+        
+        return hasAR ? const NativeARView() : const WebARFallbackView();
+      },
+      loading: () {
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('AR Scanner'),
           ),
-        ),
-      );
-    }
-
-    // Show error message if capability check failed
-    if (_errorMessage.isNotEmpty) {
-      return Scaffold(
-        appBar: AppBar(
-          title: const Text('AR Scanner'),
-        ),
-        body: Center(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
+          body: const Center(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                const Icon(Icons.warning, size: 64, color: Colors.orange),
-                const SizedBox(height: 16),
-                Text(
-                  _errorMessage,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(height: 16),
-                ElevatedButton(
-                  onPressed: _checkARCapability,
-                  child: const Text('Retry'),
-                ),
+                CircularProgressIndicator(),
+                SizedBox(height: 16),
+                Text('Checking AR capability...'),
               ],
             ),
           ),
-        ),
-      );
-    }
-
-    // Show appropriate AR view based on capability
-    return _hasARCapability
-        ? const NativeARView()
-        : const WebARFallbackView();
+        );
+      },
+      error: (error, stack) {
+        // Default to WebAR on error
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          ref.read(arModeProvider.notifier).state = 'webview';
+        });
+        
+        return Scaffold(
+          appBar: AppBar(
+            title: const Text('AR Scanner'),
+          ),
+          body: Center(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Icon(Icons.warning, size: 64, color: Colors.orange),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Error checking AR capability: $error\nFalling back to WebAR mode.',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                  const SizedBox(height: 16),
+                  ElevatedButton(
+                    onPressed: () {
+                      // Invalidate the provider to retry
+                      ref.invalidate(arCapabilityProvider);
+                    },
+                    child: const Text('Retry'),
+                  ),
+                  const SizedBox(height: 8),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('Go Back'),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
   }
 }
 
@@ -355,16 +318,65 @@ class _WebARFallbackViewState extends State<WebARFallbackView> {
         ),
       );
 
-    // TODO: Replace with actual WebAR URL
-    // Options:
-    // 1. Host custom WebAR app with model-viewer or AR.js
-    // 2. Use Google's WebAR experiments
-    // 3. Integrate with 8th Wall or similar WebAR platform
+    // TODO: Replace with actual WebAR implementation
+    // Options for WebAR implementation:
+    // 1. Create custom HTML with model-viewer or AR.js and serve locally:
+    //    _controller.loadFlutterAsset('assets/webar/index.html');
+    // 2. Use 8th Wall WebAR platform (requires account):
+    //    Uri.parse('https://your-8thwall-project.8thwall.app/');
+    // 3. Use Three.js with WebXR for custom AR experiences
+    // 4. Integrate Google's model-viewer web component
     
-    // For now, load a placeholder
+    // For demonstration, load WebAR documentation
+    // Replace this URL with your actual WebAR application URL
     _controller.loadRequest(
-      Uri.parse('https://developers.google.com/ar/develop/webxr'),
+      Uri.parse('about:blank'), // Placeholder - replace with actual WebAR URL
     );
+    
+    // Load placeholder HTML explaining WebAR setup
+    _controller.loadHtmlString('''
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          body { 
+            font-family: system-ui; 
+            padding: 20px; 
+            text-align: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          .container {
+            max-width: 400px;
+          }
+          h1 { font-size: 24px; margin-bottom: 16px; }
+          p { font-size: 14px; line-height: 1.6; margin-bottom: 20px; }
+          .icon { font-size: 64px; margin-bottom: 20px; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="icon">🌐</div>
+          <h1>WebAR Mode</h1>
+          <p>This device does not support native ARCore.</p>
+          <p>WebAR functionality will be implemented here using:</p>
+          <ul style="text-align: left;">
+            <li>Model Viewer for 3D objects</li>
+            <li>WebXR Device API for AR experiences</li>
+            <li>Camera access for measurement tools</li>
+          </ul>
+          <p style="margin-top: 20px; font-size: 12px; opacity: 0.8;">
+            To implement: Create WebAR HTML app and load it here.
+          </p>
+        </div>
+      </body>
+      </html>
+    ''');
   }
 
   @override
