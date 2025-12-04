@@ -327,12 +327,6 @@ class _WebARFallbackViewState extends State<WebARFallbackView> {
     // 3. Use Three.js with WebXR for custom AR experiences
     // 4. Integrate Google's model-viewer web component
     
-    // For demonstration, load WebAR documentation
-    // Replace this URL with your actual WebAR application URL
-    _controller.loadRequest(
-      Uri.parse('about:blank'), // Placeholder - replace with actual WebAR URL
-    );
-    
     // Load placeholder HTML explaining WebAR setup
     _controller.loadHtmlString('''
       <!DOCTYPE html>

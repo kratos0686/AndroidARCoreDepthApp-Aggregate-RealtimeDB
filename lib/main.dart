@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'domain/service/gemini_service.dart';
+import 'presentation/screens/ar_scan_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -187,11 +188,10 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: _selectedIndex == 0
           ? FloatingActionButton.extended(
               onPressed: () {
-                // TODO: Navigate to AR scan screen
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('AR Scan screen will be implemented next'),
-                    duration: Duration(seconds: 2),
+                // Navigate to AR scan screen
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => const ARScanScreen(),
                   ),
                 );
               },
