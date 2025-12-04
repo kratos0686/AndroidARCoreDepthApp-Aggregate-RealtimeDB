@@ -12,7 +12,7 @@ import '../../domain/service/export_service.dart';
 /// Provider for the local Drift database
 /// 
 /// TODO: Implement after creating AppDatabase class with Drift
-/// Example:
+/// After implementing, uncomment and use:
 /// ```dart
 /// @riverpod
 /// AppDatabase appDatabase(AppDatabaseRef ref) {
@@ -20,12 +20,7 @@ import '../../domain/service/export_service.dart';
 /// }
 /// ```
 /// 
-/// This will be generated after running: dart run build_runner build
-
-// Placeholder for database provider (to be implemented with Drift)
-// final appDatabaseProvider = Provider<AppDatabase>((ref) {
-//   throw UnimplementedError('Database not yet implemented. Run: dart run build_runner build');
-// });
+/// Run code generation: dart run build_runner build
 
 // ============================================================================
 // REPOSITORY PROVIDERS
@@ -34,7 +29,7 @@ import '../../domain/service/export_service.dart';
 /// Provider for scan data repository
 /// 
 /// TODO: Implement after creating ScanRepository interface and implementation
-/// Example:
+/// After implementing, uncomment and use:
 /// ```dart
 /// @riverpod
 /// ScanRepository scanRepository(ScanRepositoryRef ref) {
@@ -42,11 +37,6 @@ import '../../domain/service/export_service.dart';
 ///   return ScanRepositoryImpl(db);
 /// }
 /// ```
-
-// Placeholder for repository providers
-// final scanRepositoryProvider = Provider<ScanRepository>((ref) {
-//   throw UnimplementedError('Repository not yet implemented');
-// });
 
 // ============================================================================
 // FIREBASE PROVIDERS

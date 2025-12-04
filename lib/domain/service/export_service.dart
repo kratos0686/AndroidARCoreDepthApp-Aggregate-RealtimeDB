@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// Service for exporting scan data to industry-standard formats
@@ -75,17 +76,17 @@ class ExportService {
   /// 
   /// [file] - The exported file to share
   /// 
-  /// Returns: Future<void>
-  Future<void> shareExport(File file) async {
-    try {
-      // TODO: Implement platform share functionality
-      // Use share_plus package or platform channel
-      // Share to email, cloud storage, or other apps
-      
-      throw UnimplementedError('Share functionality not yet implemented');
-    } catch (e) {
-      throw ExportException('Failed to share export: $e');
-    }
+  /// Returns: Future<bool> - true if share was successful, false otherwise
+  /// 
+  /// Note: Currently not implemented. Will be implemented in a future update
+  /// using the share_plus package or platform channel.
+  Future<bool> shareExport(File file) async {
+    // TODO: Implement platform share functionality
+    // Use share_plus package or platform channel
+    // Share to email, cloud storage, or other apps
+    
+    debugPrint('Warning: shareExport not yet implemented');
+    return false;
   }
 
   /// Generate Xactimate .ESX file content
