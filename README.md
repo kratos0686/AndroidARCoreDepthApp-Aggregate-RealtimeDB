@@ -32,8 +32,11 @@ flutter create .
 
 ### 2. Configure Environment (Gemini)
 1.  Get an API Key from [Google AI Studio](https://makersuite.google.com/app/apikey).
-2.  Create a file named `.env` in the root directory.
-3.  Add your key:
+2.  Copy `.env.example` to `.env`:
+    ```bash
+    cp .env.example .env
+    ```
+3.  Edit `.env` and add your API key:
     ```
     GEMINI_API_KEY=your_api_key_here
     ```
