@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'domain/service/gemini_service.dart';
+import 'domain/service/iicrc_assistant_service.dart';
 import 'presentation/screens/ar_scan_screen.dart';
+import 'presentation/screens/iicrc_assistant_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,6 +26,16 @@ void main() async {
     } catch (e) {
       debugPrint('⚠ Gemini AI service initialization failed: $e');
       debugPrint('  The app will run but AI features will be unavailable.');
+    }
+    
+    // Initialize IICRC Assistant service
+    final iicrcAssistant = IICRCAssistantService();
+    try {
+      await iicrcAssistant.initialize();
+      debugPrint('✓ IICRC Assistant service initialized successfully');
+    } catch (e) {
+      debugPrint('⚠ IICRC Assistant service initialization failed: $e');
+      debugPrint('  The app will run but IICRC Assistant features will be unavailable.');
     }
     
     // Run the app with Riverpod provider scope
@@ -147,6 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
   final List<Widget> _screens = [
     const HomeScreen(),
     const ScansListScreen(),
+    const IICRCAssistantScreen(),
     const SettingsScreen(),
   ];
 
@@ -177,6 +190,11 @@ class _MyHomePageState extends State<MyHomePage> {
             icon: Icon(Icons.view_list_outlined),
             selectedIcon: Icon(Icons.view_list),
             label: 'Scans',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.verified_outlined),
+            selectedIcon: Icon(Icons.verified),
+            label: 'IICRC AI',
           ),
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),
@@ -246,6 +264,11 @@ class HomeScreen extends StatelessWidget {
                       leading: const Icon(Icons.auto_awesome, color: Colors.blue),
                       title: const Text('Gemini AI Ready'),
                       subtitle: const Text('Image analysis available'),
+                    ),
+                    ListTile(
+                      leading: const Icon(Icons.verified, color: Colors.purple),
+                      title: const Text('IICRC AI Assistant'),
+                      subtitle: const Text('Certified restoration guidance'),
                     ),
                     ListTile(
                       leading: const Icon(Icons.download, color: Colors.orange),

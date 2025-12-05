@@ -4,6 +4,7 @@ import 'package:firebase_firestore/firebase_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import '../../domain/service/gemini_service.dart';
 import '../../domain/service/export_service.dart';
+import '../../domain/service/iicrc_assistant_service.dart';
 
 // ============================================================================
 // DATABASE PROVIDERS
@@ -90,6 +91,17 @@ final geminiServiceProvider = Provider<GeminiService>((ref) {
 /// Used for generating Xactimate (.ESX) and MICA (XML) export files
 final exportServiceProvider = Provider<ExportService>((ref) {
   return ExportService();
+});
+
+/// Provider for IICRC AI Assistant service
+/// 
+/// Provides expert guidance on water mitigation, mold remediation, fire damage,
+/// PPE recommendations, psychrometric analysis, and damage assessment
+final iicrcAssistantProvider = Provider<IICRCAssistantService>((ref) {
+  final service = IICRCAssistantService();
+  // Initialize service when first accessed
+  // Note: Actual initialization should happen in main() or on first use
+  return service;
 });
 
 // ============================================================================
