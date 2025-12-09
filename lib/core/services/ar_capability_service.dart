@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:ar_flutter_plugin/ar_flutter_plugin.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -43,7 +42,6 @@ class ARCapabilityService {
   }
 
   Future<ARCapability> _checkIOSCapability() async {
-    final iosInfo = await _deviceInfo.iosInfo;
     // ARKit requires A9 processor or newer (iPhone 6s and up)
     // Most modern iOS devices support it.
     return ARCapability.native;
