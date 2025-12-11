@@ -72,31 +72,24 @@ Always provide:
 ''';
 
   /// Initialize the IICRC Assistant service with API key from .env
+  /// 
+  /// ⚠️ AI DISABLED: This method now throws an exception to prevent API calls.
   Future<void> initialize() async {
-    try {
-      final apiKey = dotenv.env['GEMINI_API_KEY'];
-      
-      if (apiKey == null || apiKey.isEmpty || apiKey == 'your_gemini_api_key_here') {
-        throw IICRCAssistantException(
-          'Gemini API key not configured. Please add your key to the .env file.\n'
-          'Get your API key from: https://makersuite.google.com/app/apikey'
-        );
-      }
-
-      // Initialize Gemini model with extended context for IICRC expertise
-      _model = GenerativeModel(
-        model: 'gemini-1.5-pro',
-        apiKey: apiKey,
-        systemInstruction: Content.text(_iicrcContext),
-      );
-      
-      _initialized = true;
-    } catch (e) {
-      throw IICRCAssistantException('Failed to initialize IICRC Assistant service: $e');
-    }
+    throw IICRCAssistantException(
+      'AI disabled in repository. IICRC Assistant AI integration has been disabled to prevent '
+      'accidental credential exposure in version control.\n\n'
+      'To enable AI features securely:\n'
+      '1. Use a backend proxy service to handle API calls (RECOMMENDED)\n'
+      '2. Inject secrets via CI/CD secret manager at build time\n'
+      '3. For local dev, use .env.local (never commit this file)\n\n'
+      'See .env file for detailed instructions.\n'
+      'Remove this stub in iicrc_assistant_service.dart initialize() to re-enable.'
+    );
   }
 
   /// Categorize water damage and provide mitigation guidance
+  /// 
+  /// ⚠️ AI DISABLED: This method now throws an exception to prevent API calls.
   /// 
   /// [description] - Description of the water damage scenario
   /// [imageBytes] - Optional image of the damage
@@ -106,59 +99,15 @@ Always provide:
     required String description,
     List<int>? imageBytes,
   }) async {
-    _ensureInitialized();
-
-    try {
-      final prompt = '''
-Based on this water damage scenario: "$description"
-
-Provide a comprehensive water damage assessment with:
-
-1. WATER DAMAGE CLASS (1-4): Classify the damage extent
-2. WATER CATEGORY (1-3): Identify contamination level
-3. AFFECTED MATERIALS: List materials impacted
-4. RECOMMENDED ACTIONS: Immediate steps to take
-5. EQUIPMENT NEEDED: Specific equipment recommendations
-6. ESTIMATED DRYING TIME: Based on class and conditions
-7. PPE REQUIREMENTS: Required personal protective equipment
-8. SAFETY CONCERNS: Any immediate safety hazards
-
-Provide response in JSON format:
-{
-  "waterClass": "Class 1-4",
-  "waterCategory": "Category 1-3",
-  "affectedMaterials": ["material1", "material2"],
-  "recommendedActions": ["action1", "action2"],
-  "equipment": ["equipment1", "equipment2"],
-  "estimatedDryingDays": "3-5 days",
-  "ppeLevel": "Level 1-4",
-  "safetyConcerns": ["concern1", "concern2"],
-  "summary": "Brief professional assessment"
-}
-''';
-
-      final content = imageBytes != null
-          ? [
-              Content.multi([
-                DataPart('image/jpeg', imageBytes),
-                TextPart(prompt),
-              ])
-            ]
-          : [Content.text(prompt)];
-
-      final response = await _model.generateContent(content);
-      
-      if (response.text == null) {
-        throw IICRCAssistantException('Assistant returned empty response');
-      }
-
-      return WaterDamageAssessment.fromResponse(response.text!);
-    } catch (e) {
-      throw IICRCAssistantException('Water damage assessment failed: $e');
-    }
+    throw IICRCAssistantException(
+      'AI disabled in repository. To enable, provide a secure backend or secrets '
+      'and remove the stub. See .env file for instructions.'
+    );
   }
 
   /// Provide mold remediation guidance following S520 standards
+  /// 
+  /// ⚠️ AI DISABLED: This method now throws an exception to prevent API calls.
   /// 
   /// [description] - Description of the mold situation
   /// [imageBytes] - Optional image of the mold
@@ -168,61 +117,15 @@ Provide response in JSON format:
     required String description,
     List<int>? imageBytes,
   }) async {
-    _ensureInitialized();
-
-    try {
-      final prompt = '''
-Based on this mold situation: "$description"
-
-Following IICRC S520 Standard for mold remediation, provide:
-
-1. CONDITION LEVEL (1-4): Assess mold contamination level
-2. AFFECTED AREA: Estimate square footage
-3. CONTAINMENT REQUIREMENTS: Specify containment needs
-4. REMEDIATION PROTOCOL: Step-by-step remediation process
-5. PPE REQUIREMENTS: Detailed protective equipment needed
-6. AIR FILTRATION: HEPA and negative air requirements
-7. DISPOSAL PROCEDURES: Safe removal and disposal methods
-8. POST-REMEDIATION: Verification and clearance testing
-9. SAFETY WARNINGS: Critical safety information
-
-Provide response in JSON format:
-{
-  "conditionLevel": "Condition 1-4",
-  "affectedAreaSqFt": "estimated square feet",
-  "containmentRequired": "none/limited/full/full with airlock",
-  "remediationSteps": ["step1", "step2"],
-  "ppeRequired": ["item1", "item2"],
-  "airFiltration": "HEPA requirements",
-  "disposalMethod": "disposal instructions",
-  "postRemediation": "verification requirements",
-  "safetyWarnings": ["warning1", "warning2"],
-  "summary": "Professional assessment"
-}
-''';
-
-      final content = imageBytes != null
-          ? [
-              Content.multi([
-                DataPart('image/jpeg', imageBytes),
-                TextPart(prompt),
-              ])
-            ]
-          : [Content.text(prompt)];
-
-      final response = await _model.generateContent(content);
-      
-      if (response.text == null) {
-        throw IICRCAssistantException('Assistant returned empty response');
-      }
-
-      return MoldRemediationAdvice.fromResponse(response.text!);
-    } catch (e) {
-      throw IICRCAssistantException('Mold remediation advice failed: $e');
-    }
+    throw IICRCAssistantException(
+      'AI disabled in repository. To enable, provide a secure backend or secrets '
+      'and remove the stub. See .env file for instructions.'
+    );
   }
 
   /// Assess fire damage and provide restoration guidance
+  /// 
+  /// ⚠️ AI DISABLED: This method now throws an exception to prevent API calls.
   /// 
   /// [description] - Description of the fire damage
   /// [imageBytes] - Optional image of the damage
@@ -232,59 +135,15 @@ Provide response in JSON format:
     required String description,
     List<int>? imageBytes,
   }) async {
-    _ensureInitialized();
-
-    try {
-      final prompt = '''
-Based on this fire damage scenario: "$description"
-
-Provide a comprehensive fire damage assessment with:
-
-1. SMOKE DAMAGE TYPE: Identify smoke residue type (protein/natural/synthetic)
-2. STRUCTURAL ASSESSMENT: Evaluate structural integrity
-3. SALVAGEABLE MATERIALS: List items that can be restored
-4. NON-SALVAGEABLE MATERIALS: List items requiring replacement
-5. CLEANING METHODS: Recommend appropriate cleaning techniques
-6. ODOR CONTROL: Strategies for smoke odor removal
-7. RESTORATION TIMELINE: Estimated restoration duration
-8. SAFETY CONCERNS: Structural or health hazards
-
-Provide response in JSON format:
-{
-  "smokeDamageType": "protein/natural/synthetic/combination",
-  "structuralIntegrity": "assessment",
-  "salvageableItems": ["item1", "item2"],
-  "nonSalvageableItems": ["item1", "item2"],
-  "cleaningMethods": ["method1", "method2"],
-  "odorControl": "strategies",
-  "estimatedTimeline": "timeline",
-  "safetyConcerns": ["concern1", "concern2"],
-  "summary": "Professional assessment"
-}
-''';
-
-      final content = imageBytes != null
-          ? [
-              Content.multi([
-                DataPart('image/jpeg', imageBytes),
-                TextPart(prompt),
-              ])
-            ]
-          : [Content.text(prompt)];
-
-      final response = await _model.generateContent(content);
-      
-      if (response.text == null) {
-        throw IICRCAssistantException('Assistant returned empty response');
-      }
-
-      return FireDamageAssessment.fromResponse(response.text!);
-    } catch (e) {
-      throw IICRCAssistantException('Fire damage assessment failed: $e');
-    }
+    throw IICRCAssistantException(
+      'AI disabled in repository. To enable, provide a secure backend or secrets '
+      'and remove the stub. See .env file for instructions.'
+    );
   }
 
   /// Recommend appropriate PPE based on scenario
+  /// 
+  /// ⚠️ AI DISABLED: This method now throws an exception to prevent API calls.
   /// 
   /// [scenario] - Description of the work scenario
   /// [hazards] - List of identified hazards
@@ -294,51 +153,10 @@ Provide response in JSON format:
     required String scenario,
     List<String>? hazards,
   }) async {
-    _ensureInitialized();
-
-    try {
-      final hazardsList = hazards != null ? hazards.join(', ') : 'unknown hazards';
-      final prompt = '''
-For this scenario: "$scenario"
-Identified hazards: $hazardsList
-
-Provide PPE recommendations ensuring safety compliance:
-
-1. PPE LEVEL (1-4): Overall protection level needed
-2. HEAD PROTECTION: Hard hat, face shield requirements
-3. EYE PROTECTION: Safety glasses, goggles, face shield
-4. RESPIRATORY PROTECTION: Mask type (N95, P100, SCBA)
-5. HAND PROTECTION: Glove type (nitrile, chemical resistant)
-6. BODY PROTECTION: Clothing type (Tyvek, chemical suit)
-7. FOOT PROTECTION: Boot requirements
-8. ADDITIONAL EQUIPMENT: Other safety gear needed
-9. DECONTAMINATION: Procedures for PPE removal
-
-Provide response in JSON format:
-{
-  "ppeLevel": "Level 1-4",
-  "headProtection": "requirements",
-  "eyeProtection": "requirements",
-  "respiratoryProtection": "requirements",
-  "handProtection": "requirements",
-  "bodyProtection": "requirements",
-  "footProtection": "requirements",
-  "additionalEquipment": ["item1", "item2"],
-  "decontaminationProcedure": "procedure",
-  "summary": "PPE compliance summary"
-}
-''';
-
-      final response = await _model.generateContent([Content.text(prompt)]);
-      
-      if (response.text == null) {
-        throw IICRCAssistantException('Assistant returned empty response');
-      }
-
-      return PPERecommendation.fromResponse(response.text!);
-    } catch (e) {
-      throw IICRCAssistantException('PPE recommendation failed: $e');
-    }
+    throw IICRCAssistantException(
+      'AI disabled in repository. To enable, provide a secure backend or secrets '
+      'and remove the stub. See .env file for instructions.'
+    );
   }
 
   /// Perform psychrometric analysis for drying strategy
@@ -348,61 +166,29 @@ Provide response in JSON format:
   /// [grainsPer Pound] - Optional GPP reading
   /// 
   /// Returns: [PsychrometricAnalysis] with drying recommendations
+  /// Perform psychrometric analysis for drying strategy
+  /// 
+  /// ⚠️ AI DISABLED: This method now throws an exception to prevent API calls.
+  /// 
+  /// [temperature] - Temperature in Fahrenheit
+  /// [relativeHumidity] - Relative humidity percentage
+  /// [grainsPerPound] - Optional GPP reading
+  /// 
+  /// Returns: [PsychrometricAnalysis] with drying recommendations
   Future<PsychrometricAnalysis> analyzePsychrometrics({
     required double temperature,
     required double relativeHumidity,
     double? grainsPerPound,
   }) async {
-    _ensureInitialized();
-
-    try {
-      final prompt = '''
-Perform psychrometric analysis for water damage drying:
-
-CURRENT CONDITIONS:
-- Temperature: $temperature°F
-- Relative Humidity: $relativeHumidity%
-${grainsPerPound != null ? '- Grains Per Pound: $grainsPerPound GPP' : ''}
-
-Provide comprehensive analysis with:
-
-1. DEW POINT: Calculate dew point temperature
-2. GRAINS PER POUND: Calculate or validate GPP
-3. VAPOR PRESSURE: Analyze vapor pressure
-4. DRYING POTENTIAL: Assess current drying conditions
-5. TARGET CONDITIONS: Recommended RH and GPP targets
-6. EQUIPMENT RECOMMENDATIONS: Dehumidifier and air mover specs
-7. ADJUSTMENT RECOMMENDATIONS: How to optimize drying
-8. ESTIMATED DRYING TIME: Based on psychrometric conditions
-
-Provide response in JSON format:
-{
-  "dewPoint": "temperature in °F",
-  "grainsPerPound": "GPP value",
-  "vaporPressure": "analysis",
-  "dryingPotential": "good/fair/poor with explanation",
-  "targetRH": "recommended %",
-  "targetGPP": "recommended GPP",
-  "equipmentRecommendations": ["equipment1", "equipment2"],
-  "adjustments": ["adjustment1", "adjustment2"],
-  "estimatedDryingTime": "time estimate",
-  "summary": "Professional analysis"
-}
-''';
-
-      final response = await _model.generateContent([Content.text(prompt)]);
-      
-      if (response.text == null) {
-        throw IICRCAssistantException('Assistant returned empty response');
-      }
-
-      return PsychrometricAnalysis.fromResponse(response.text!);
-    } catch (e) {
-      throw IICRCAssistantException('Psychrometric analysis failed: $e');
-    }
+    throw IICRCAssistantException(
+      'AI disabled in repository. To enable, provide a secure backend or secrets '
+      'and remove the stub. See .env file for instructions.'
+    );
   }
 
   /// Analyze photos/videos to identify materials and damage extent
+  /// 
+  /// ⚠️ AI DISABLED: This method now throws an exception to prevent API calls.
   /// 
   /// [imageBytes] - Image data to analyze
   /// [additionalContext] - Optional context about the image
@@ -412,59 +198,15 @@ Provide response in JSON format:
     required List<int> imageBytes,
     String? additionalContext,
   }) async {
-    _ensureInitialized();
-
-    try {
-      final context = additionalContext ?? 'No additional context provided';
-      final prompt = '''
-Analyze this image for restoration assessment purposes.
-Context: $context
-
-Provide detailed analysis including:
-
-1. MATERIALS IDENTIFIED: List all visible materials and their condition
-2. DAMAGE TYPE: Identify type of damage (water, mold, fire, structural)
-3. DAMAGE EXTENT: Assess severity (minor, moderate, severe, critical)
-4. AFFECTED AREAS: Describe locations and sizes of damaged areas
-5. MOISTURE INDICATORS: Visible signs of water damage or moisture
-6. SAFETY HAZARDS: Identify any safety concerns
-7. IMMEDIATE ACTIONS: Urgent steps needed
-8. DOCUMENTATION NOTES: Important observations for records
-
-Provide response in JSON format:
-{
-  "materials": [{"name": "material", "condition": "good/damaged/critical"}],
-  "damageType": "water/mold/fire/structural/combination",
-  "damageExtent": "minor/moderate/severe/critical",
-  "affectedAreas": [{"location": "location", "size": "size estimate"}],
-  "moistureIndicators": ["indicator1", "indicator2"],
-  "safetyHazards": ["hazard1", "hazard2"],
-  "immediateActions": ["action1", "action2"],
-  "documentationNotes": "detailed observations",
-  "summary": "Comprehensive photo analysis"
-}
-''';
-
-      final content = [
-        Content.multi([
-          DataPart('image/jpeg', imageBytes),
-          TextPart(prompt),
-        ])
-      ];
-
-      final response = await _model.generateContent(content);
-      
-      if (response.text == null) {
-        throw IICRCAssistantException('Assistant returned empty response');
-      }
-
-      return DamagePhotoAnalysis.fromResponse(response.text!);
-    } catch (e) {
-      throw IICRCAssistantException('Photo analysis failed: $e');
-    }
+    throw IICRCAssistantException(
+      'AI disabled in repository. To enable, provide a secure backend or secrets '
+      'and remove the stub. See .env file for instructions.'
+    );
   }
 
   /// Ask a general question to the IICRC AI Assistant
+  /// 
+  /// ⚠️ AI DISABLED: This method now throws an exception to prevent API calls.
   /// 
   /// [question] - Natural language question about restoration work
   /// [context] - Optional context for the question
@@ -474,23 +216,10 @@ Provide response in JSON format:
     required String question,
     String? context,
   }) async {
-    _ensureInitialized();
-
-    try {
-      final fullPrompt = context != null
-          ? 'Context: $context\n\nQuestion: $question'
-          : question;
-
-      final response = await _model.generateContent([Content.text(fullPrompt)]);
-      
-      if (response.text == null) {
-        throw IICRCAssistantException('Assistant returned empty response');
-      }
-
-      return response.text!;
-    } catch (e) {
-      throw IICRCAssistantException('Question processing failed: $e');
-    }
+    throw IICRCAssistantException(
+      'AI disabled in repository. To enable, provide a secure backend or secrets '
+      'and remove the stub. See .env file for instructions.'
+    );
   }
 
   /// Ensure service is initialized before use

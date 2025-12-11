@@ -11,7 +11,10 @@ A Flutter application for professional 3D room scanning with integrated **IICRC 
 - Export to industry-standard formats (Xactimate .ESX, MICA XML)
 
 ### IICRC AI Assistant
-The app includes a comprehensive AI assistant certified in water restoration expertise:
+
+⚠️ **AI Features Currently Disabled**: The Gemini API integration has been disabled by default to prevent accidental exposure of API keys in version control.
+
+The app includes a comprehensive AI assistant framework with IICRC-certified water restoration expertise:
 
 #### Water Mitigation
 - Categorize water damage (Class 1-4)
@@ -65,8 +68,7 @@ This will create the necessary `android/`, `ios/`, `web/`, `linux/`, `macos/`, a
 
 - Flutter SDK
 - Android Studio / Xcode (for mobile development)
-- Google Gemini API key (for AI features)
-- Firebase project (for cloud sync)
+- Firebase project (for cloud sync and authentication)
 
 ## Setup
 
@@ -75,12 +77,14 @@ This will create the necessary `android/`, `ios/`, `web/`, `linux/`, `macos/`, a
 flutter pub get
 ```
 
-2. Configure API keys in `.env`:
-```
-GEMINI_API_KEY=your_gemini_api_key_here
-```
+2. Set up Firebase:
+   - Create a Firebase project at https://console.firebase.google.com
+   - Add your app to the Firebase project
+   - Download and configure Firebase config files
+   - Enable Firebase Authentication with Google Sign-In provider
+   - See SETUP_GUIDE.md for detailed Firebase setup instructions
 
-3. Set up Firebase (see SETUP_GUIDE.md for details)
+3. Configure Google Sign-In (see SETUP_GUIDE.md for details)
 
 ## Running the App
 
@@ -98,7 +102,9 @@ flutter run
 
 ## IICRC AI Assistant Usage
 
-The IICRC AI Assistant is accessible from the main navigation bar. It provides:
+⚠️ **AI is currently disabled by default.** See "Enabling AI Features Securely" below.
+
+The IICRC AI Assistant is accessible from the main navigation bar. When enabled, it provides:
 
 - **Professional Guidance**: IICRC-certified restoration expertise
 - **Safety-Focused**: PPE and safety recommendations prioritized
@@ -113,6 +119,80 @@ Access the assistant to:
 5. Analyze psychrometric conditions for optimal drying
 6. Upload photos for AI-powered damage assessment
 7. Ask any restoration-related questions for expert guidance
+
+## Authentication
+
+The app uses Firebase Authentication with Google Sign-In to secure access:
+
+- **Sign in with Google**: Users authenticate using their Google account
+- **Secure session management**: Firebase handles token management and session persistence
+- **User profile access**: Display name, email, and photo URL available after sign-in
+
+To implement the sign-in UI in your screens:
+
+```dart
+// Example usage in IICRC Assistant screen
+final authService = AuthService();
+
+// Check authentication state
+authService.authStateChanges.listen((user) {
+  if (user != null) {
+    print('User is signed in: ${user.displayName}');
+  } else {
+    print('User is signed out');
+  }
+});
+
+// Sign in
+try {
+  await authService.signInWithGoogle();
+} catch (e) {
+  print('Sign-in error: $e');
+}
+
+// Sign out
+await authService.signOut();
+```
+
+## Enabling AI Features Securely
+
+⚠️ **SECURITY NOTICE**: AI features (Gemini API) are disabled by default to prevent credential exposure.
+
+### Option 1: Backend Proxy (RECOMMENDED for Production)
+1. Create a secure backend service (Node.js, Python, Go, etc.)
+2. Store Gemini API key in backend environment variables or secret manager
+3. Your app sends requests to your backend endpoint
+4. Backend forwards requests to Gemini API and returns responses
+5. Benefits:
+   - No API keys in app code or version control
+   - Rate limiting and cost control
+   - Request logging and monitoring
+   - API key rotation without app updates
+
+### Option 2: CI/CD Secret Injection (for Testing/Staging)
+1. Store API key in CI/CD secret manager (GitHub Secrets, GitLab Variables)
+2. Inject secret at build time via environment variables
+3. Load secret in app from environment (not from tracked files)
+4. Ensure secrets are never committed to version control
+
+### Option 3: Local Development Only
+1. Create `.env.local` file (add to .gitignore)
+2. Add: `GEMINI_API_KEY=your_actual_key_here`
+3. Update app to load `.env.local` instead of `.env`
+4. **NEVER commit `.env.local` to version control**
+5. Remove AI-disabled stubs in `lib/domain/service/gemini_service.dart` and `lib/domain/service/iicrc_assistant_service.dart`
+
+### Re-enabling AI Code
+To re-enable AI features after securing your API key:
+
+1. Remove the exception stubs in:
+   - `lib/domain/service/gemini_service.dart` (initialize() and network methods)
+   - `lib/domain/service/iicrc_assistant_service.dart` (initialize() and network methods)
+2. Restore the original API call implementation
+3. Ensure your secure key management solution is in place
+4. Test thoroughly before deploying
+
+See `.env` file for detailed instructions and security guidance.
 
 ## Architecture
 
