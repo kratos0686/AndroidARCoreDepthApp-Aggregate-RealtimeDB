@@ -7,7 +7,12 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
   // Load environment variables
-  await dotenv.load(fileName: ".env");
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    // If the .env file is missing or cannot be loaded, print a warning and continue
+    debugPrint('Warning: Could not load .env file: $e');
+  }
 
   // Initialize Firebase (mocked for check build)
   // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
