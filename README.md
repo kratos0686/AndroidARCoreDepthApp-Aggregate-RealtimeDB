@@ -65,8 +65,9 @@ This will create the necessary `android/`, `ios/`, `web/`, `linux/`, `macos/`, a
 
 - Flutter SDK
 - Android Studio / Xcode (for mobile development)
-- Google Gemini API key (for AI features)
-- Firebase project (for cloud sync)
+- Firebase project (for cloud sync and authentication)
+
+**Note:** AI features are disabled by default for security. See Setup section for details.
 
 ## Setup
 
@@ -75,12 +76,23 @@ This will create the necessary `android/`, `ios/`, `web/`, `linux/`, `macos/`, a
 flutter pub get
 ```
 
-2. Configure API keys in `.env`:
-```
-GEMINI_API_KEY=your_gemini_api_key_here
-```
+2. Set up Firebase (see SETUP_GUIDE.md for details):
+   - Create a Firebase project
+   - Enable Firebase Authentication with Google Sign-In provider
+   - Add your app to Firebase and download configuration files
+   - Enable Firestore Database and Storage
 
-3. Set up Firebase (see SETUP_GUIDE.md for details)
+3. **AI Features (Disabled by Default)**:
+   - AI features using Gemini API are **disabled** in this repository for security
+   - To enable AI securely, use one of these approaches:
+     - **Recommended for Production**: Set up a secure backend proxy to handle Gemini API calls
+     - **For Development**: Use CI/CD secret injection (never commit API keys)
+   - See `.env` file and SETUP_GUIDE.md for detailed instructions on secure AI enablement
+
+4. **Authentication**:
+   - The app includes Firebase Google Sign-In authentication
+   - Users can authenticate using their Google account
+   - IICRC Assistant features can be gated by authentication
 
 ## Running the App
 
@@ -98,14 +110,20 @@ flutter run
 
 ## IICRC AI Assistant Usage
 
-The IICRC AI Assistant is accessible from the main navigation bar. It provides:
+**Note:** AI features are currently disabled in the repository for security. To use the IICRC AI Assistant:
+
+1. Set up secure AI backend or configure secret injection (see Setup section)
+2. Authenticate using Google Sign-In (powered by Firebase Authentication)
+3. Access the assistant from the main navigation bar
+
+The IICRC AI Assistant provides:
 
 - **Professional Guidance**: IICRC-certified restoration expertise
 - **Safety-Focused**: PPE and safety recommendations prioritized
 - **Concise Advice**: Quick, actionable recommendations
 - **Industry Standards**: Compliant with IICRC standards and best practices
 
-Access the assistant to:
+Once enabled, you can use the assistant to:
 1. Assess water damage severity and get mitigation plans
 2. Get mold remediation protocols following S520 standards
 3. Evaluate fire damage and restoration strategies
@@ -120,7 +138,8 @@ Access the assistant to:
 - **Riverpod** for state management
 - **Drift** for local SQLite database
 - **Firebase** for cloud sync and authentication
-- **Google Gemini AI** for intelligent analysis and IICRC expertise
+- **Firebase Authentication** with Google Sign-In for user authentication
+- **Google Gemini AI** for intelligent analysis (disabled by default; requires secure backend)
 
 ## License
 

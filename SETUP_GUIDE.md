@@ -4,27 +4,35 @@
 
 This project has been migrated to Flutter with a clean architecture setup. All platform-specific code has been replaced with cross-platform Flutter implementation.
 
+**Security Note**: This repository has been configured with security best practices:
+- AI features (Gemini API) are disabled by default
+- No API keys are stored in version control
+- Firebase Authentication with Google Sign-In is available for user authentication
+- See "Configure Environment Variables" section for secure AI enablement
+
 ## Project Structure
 
 ```
 lib/
 ├── domain/
 │   └── service/
-│       ├── export_service.dart      # Xactimate & MICA export
-│       └── gemini_service.dart      # AI analysis
+│       ├── auth_service.dart           # Firebase Google Sign-In
+│       ├── export_service.dart         # Xactimate & MICA export
+│       ├── gemini_service.dart         # AI analysis (DISABLED)
+│       └── iicrc_assistant_service.dart # IICRC AI (DISABLED)
 ├── presentation/
 │   ├── providers/
-│   │   └── providers.dart           # Riverpod state management
+│   │   └── providers.dart              # Riverpod state management
 │   └── screens/
-│       └── ar_scan_screen.dart      # AR with WebAR fallback
-└── main.dart                        # App entry point
+│       └── ar_scan_screen.dart         # AR with WebAR fallback
+└── main.dart                           # App entry point
 
 android/
 ├── app/
 │   ├── build.gradle                 # minSdkVersion 24
 │   └── src/main/AndroidManifest.xml # AR optional (required="false")
 
-.env                                 # API keys (not in git with real keys)
+.env                                    # Security guidance (NO real keys)
 ```
 
 ## Initial Setup
@@ -47,23 +55,91 @@ This will create all platform folders without overwriting existing files.
 
 ### 3. Configure Environment Variables
 
-Edit `.env` file and add your Gemini API key:
+**IMPORTANT: AI features are disabled by default for security.**
 
-```
-GEMINI_API_KEY=your_actual_key_here
-```
+The `.env` file contains security guidance. DO NOT add real API keys to this file.
 
-Get your key from: https://makersuite.google.com/app/apikey
+To enable AI features securely, choose one of these approaches:
+
+#### Option A: Backend Proxy (RECOMMENDED for Production)
+1. Set up a secure backend service to proxy Gemini API calls
+2. Store API keys in your backend's secret manager:
+   - Firebase Secret Manager
+   - AWS Secrets Manager
+   - Google Cloud Secret Manager
+3. Route AI requests through your authenticated backend
+4. Modify `lib/domain/service/gemini_service.dart` and `lib/domain/service/iicrc_assistant_service.dart` to call your backend instead of Gemini directly
+
+#### Option B: CI/CD Secret Injection (For Development/Testing)
+1. Store API keys in your CI/CD platform's secret manager
+2. Inject secrets at build time via environment variables
+3. Never commit injected secrets to version control
+4. Modify the service files to remove the exception-throwing stubs
+
+**To disable the AI stub (after securing your secrets):**
+1. Edit `lib/domain/service/gemini_service.dart`
+2. Edit `lib/domain/service/iicrc_assistant_service.dart`
+3. Remove the `throw` statements from `initialize()` and network methods
+4. Restore the original implementation (see git history for reference)
 
 ### 4. Firebase Configuration
 
 1. Create a Firebase project: https://console.firebase.google.com
 2. Add Android app with package: `com.arscanner.android_arcore_depth_app`
 3. Download `google-services.json` to `android/app/`
-4. Enable:
-   - Authentication (Email/Google)
-   - Firestore Database
-   - Storage
+4. Enable the following Firebase services:
+   - **Authentication**: 
+     - Enable Google Sign-In provider
+     - Configure OAuth consent screen
+     - Add SHA-1 fingerprint for Android (get via: `keytool -list -v -keystore ~/.android/debug.keystore`)
+   - **Firestore Database**: Create database in production or test mode
+   - **Storage**: Enable Firebase Storage
+
+#### Setting up Google Sign-In:
+
+1. In Firebase Console, go to Authentication > Sign-in method
+2. Enable "Google" provider
+3. Configure OAuth consent screen if prompted
+4. For Android: Add your app's SHA-1 certificate fingerprint:
+   ```bash
+   # Debug keystore (for development)
+   keytool -list -v -keystore ~/.android/debug.keystore -alias androiddebugkey -storepass android -keypass android
+   
+   # Copy the SHA-1 fingerprint and add it in Firebase Console > Project Settings > Your apps
+   ```
+5. Download the updated `google-services.json` and place in `android/app/`
+
+**Using AuthService in your app:**
+
+The `AuthService` (located at `lib/domain/service/auth_service.dart`) provides:
+- `signInWithGoogle()`: Initiate Google Sign-In flow
+- `signOut()`: Sign out current user
+- `currentUserStream`: Stream of authentication state changes
+- `isSignedIn`: Check if user is authenticated
+
+Example usage in IICRC Assistant screen:
+```dart
+final authService = AuthService();
+
+// Listen to authentication state
+authService.currentUserStream.listen((user) {
+  if (user != null) {
+    // User is signed in - show protected features
+  } else {
+    // User is signed out - show sign-in prompt
+  }
+});
+
+// Sign in
+try {
+  await authService.signInWithGoogle();
+} catch (e) {
+  // Handle error
+}
+
+// Sign out
+await authService.signOut();
+```
 
 ### 5. Run Code Generation
 
@@ -105,7 +181,9 @@ flutter build apk --release
 
 ### ✅ Services
 - **ExportService**: Export scans to Xactimate (.ESX) and MICA (XML)
-- **GeminiService**: AI-powered image analysis and damage detection
+- **GeminiService**: AI-powered image analysis (DISABLED by default for security)
+- **IICRCAssistantService**: IICRC-certified AI assistant (DISABLED by default for security)
+- **AuthService**: Firebase Authentication with Google Sign-In
 
 ### ✅ State Management
 - Riverpod providers for Firebase, services, and UI state
@@ -155,7 +233,7 @@ flutter build apk --release
 **Solution**: Ensure `google-services.json` is in `android/app/`
 
 ### Issue: Gemini API errors
-**Solution**: Check `.env` file has valid API key
+**Solution**: AI features are disabled by default for security. See "Configure Environment Variables" section for secure enablement options.
 
 ### Issue: AR not working
 **Solution**: AR features are optional - app will fallback to WebAR automatically
