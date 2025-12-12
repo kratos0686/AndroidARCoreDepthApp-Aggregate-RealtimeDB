@@ -93,7 +93,7 @@ class GeminiService {
 
   /// Sanity checks measurements for realism.
   Future<String> validateMeasurements(Map<String, double> dimensions) async {
-     if (dotenv.env['GEMINI_API_KEY']?.isEmpty ?? true) {
+   if (dotenv.env['GEMINI_API_KEY']?.isEmpty ?? true) {
       return "Measurements appear valid (Mock).";
     }
 
