@@ -53,7 +53,7 @@ class ExportService {
     builder.element('MICAExchange', nest: () {
       builder.element('LossLocation', nest: () {
         builder.element('Room', nest: () {
-           builder.attribute('ID', '1');
+            builder.attribute('ID', '1');
            builder.element('Name', nest: roomData['name'] ?? 'Room 1');
            builder.element('Area', nest: _calculateArea(roomData));
         });
