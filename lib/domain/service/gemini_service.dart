@@ -12,26 +12,15 @@ class GeminiService {
   /// Must be called before using any analysis methods
   /// Throws [GeminiException] if API key is missing or invalid
   Future<void> initialize() async {
-    try {
-      final apiKey = dotenv.env['GEMINI_API_KEY'];
-      
-      if (apiKey == null || apiKey.isEmpty || apiKey == 'your_gemini_api_key_here') {
-        throw GeminiException(
-          'Gemini API key not configured. Please add your key to the .env file.\n'
-          'Get your API key from: https://makersuite.google.com/app/apikey'
-        );
-      }
-
-      // Initialize Gemini model (using gemini-pro-vision for image analysis)
-      _model = GenerativeModel(
-        model: 'gemini-pro-vision',
-        apiKey: apiKey,
-      );
-      
-      _initialized = true;
-    } catch (e) {
-      throw GeminiException('Failed to initialize Gemini service: $e');
-    }
+    throw GeminiException(
+      'AI disabled in repository. Gemini API integration has been disabled to prevent '
+      'accidental exposure of API keys.\n\n'
+      'To enable AI features securely:\n'
+      '1. Set up a secure backend proxy to handle Gemini API calls, OR\n'
+      '2. Use CI/CD secret injection for development/testing\n'
+      '3. Modify this method in lib/domain/service/gemini_service.dart to remove this stub\n\n'
+      'NEVER commit API keys to version control. See .env file for detailed instructions.'
+    );
   }
 
   /// Analyze an image for damage detection and material identification
@@ -44,56 +33,9 @@ class GeminiService {
     List<int> imageBytes, {
     String? prompt,
   }) async {
-    _ensureInitialized();
-
-    try {
-      final defaultPrompt = prompt ?? '''
-Analyze this image for water damage restoration purposes. Identify:
-
-1. DAMAGE TYPES: Detect any visible damage including:
-   - Water stains or discoloration
-   - Mold or mildew growth
-   - Cracks or structural damage
-   - Peeling paint or wallpaper
-   - Warped or buckled materials
-
-2. MATERIALS: Identify the materials present:
-   - Drywall/Gypsum board
-   - Wood (type if possible)
-   - Tile (ceramic, porcelain, etc.)
-   - Concrete or masonry
-   - Carpet or flooring
-   - Metal fixtures
-
-3. SEVERITY: Rate damage severity as Low, Medium, or High
-
-4. LOCATION: Describe where damage is located in the image
-
-Provide a structured JSON response with:
-{
-  "damages": [{"type": "...", "severity": "...", "location": "...", "confidence": 0.0-1.0}],
-  "materials": [{"name": "...", "confidence": 0.0-1.0}],
-  "summary": "Brief overall assessment"
-}
-''';
-
-      final content = [
-        Content.multi([
-          DataPart('image/jpeg', imageBytes),
-          TextPart(defaultPrompt),
-        ])
-      ];
-
-      final response = await _model.generateContent(content);
-      
-      if (response.text == null) {
-        throw GeminiException('Gemini returned empty response');
-      }
-
-      return _parseAnalysisResult(response.text!);
-    } catch (e) {
-      throw GeminiException('Image analysis failed: $e');
-    }
+    throw GeminiException(
+      'AI disabled in repository. To enable, provide a secure backend or secrets and remove the stub.'
+    );
   }
 
   /// Generate a comprehensive damage report from scan data
@@ -102,38 +44,9 @@ Provide a structured JSON response with:
   /// 
   /// Returns: String containing formatted report
   Future<String> generateReport(Map<String, dynamic> scanData) async {
-    _ensureInitialized();
-
-    try {
-      final prompt = '''
-Generate a professional water damage restoration report based on this scan data:
-
-Room: ${scanData['roomName']}
-Dimensions: ${scanData['dimensions']}
-Materials Detected: ${scanData['materials']}
-Damage Areas: ${scanData['damageAreas']}
-
-Include:
-1. Executive Summary
-2. Damage Assessment
-3. Recommended Actions
-4. Equipment Recommendations
-5. Estimated Drying Time
-
-Keep it professional and concise.
-''';
-
-      final content = [Content.text(prompt)];
-      final response = await _model.generateContent(content);
-
-      if (response.text == null) {
-        throw GeminiException('Gemini returned empty report');
-      }
-
-      return response.text!;
-    } catch (e) {
-      throw GeminiException('Report generation failed: $e');
-    }
+    throw GeminiException(
+      'AI disabled in repository. To enable, provide a secure backend or secrets and remove the stub.'
+    );
   }
 
   /// Ask a custom question about scan data or images
@@ -143,24 +56,9 @@ Keep it professional and concise.
   /// 
   /// Returns: String response from Gemini
   Future<String> askQuestion(String question, {Map<String, dynamic>? context}) async {
-    _ensureInitialized();
-
-    try {
-      final fullPrompt = context != null
-          ? 'Context: $context\n\nQuestion: $question'
-          : question;
-
-      final content = [Content.text(fullPrompt)];
-      final response = await _model.generateContent(content);
-
-      if (response.text == null) {
-        throw GeminiException('Gemini returned empty response');
-      }
-
-      return response.text!;
-    } catch (e) {
-      throw GeminiException('Question processing failed: $e');
-    }
+    throw GeminiException(
+      'AI disabled in repository. To enable, provide a secure backend or secrets and remove the stub.'
+    );
   }
 
   /// Parse Gemini response into structured AnalysisResult
