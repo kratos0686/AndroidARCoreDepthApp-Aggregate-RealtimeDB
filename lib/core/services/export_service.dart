@@ -55,7 +55,7 @@ class ExportService {
         builder.element('Room', nest: () {
             builder.attribute('ID', '1');
            builder.element('Name', nest: roomData['name'] ?? 'Room 1');
-           builder.element('Area', nest: _calculateArea(roomData));
+          builder.element('Area', nest: _calculateArea(roomData));
         });
       });
     });
