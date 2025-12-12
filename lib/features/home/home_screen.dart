@@ -212,7 +212,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
             title: const Text('Export to MICA (.XML)'),
             onTap: () {
               Navigator.pop(context);
-               ref.read(exportServiceProvider).exportToMica({
+              ref.read(exportServiceProvider).exportToMica({
                 'name': 'Living Room',
                 'length': 15.0,
                 'width': 12.0,
