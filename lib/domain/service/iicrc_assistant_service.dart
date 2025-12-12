@@ -163,7 +163,7 @@ Always provide:
   /// 
   /// [temperature] - Temperature in Fahrenheit
   /// [relativeHumidity] - Relative humidity percentage
-  /// [grainsPer Pound] - Optional GPP reading
+  /// [grainsPerPound] - Optional GPP reading
   /// 
   /// Returns: [PsychrometricAnalysis] with drying recommendations
   /// Perform psychrometric analysis for drying strategy
