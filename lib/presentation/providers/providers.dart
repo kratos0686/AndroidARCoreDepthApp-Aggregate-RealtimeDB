@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_firestore/firebase_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
 import '../../domain/service/gemini_service.dart';
 import '../../domain/service/export_service.dart';
 import '../../domain/service/iicrc_assistant_service.dart';
@@ -136,15 +137,21 @@ final lastSyncProvider = StateProvider<DateTime?>((ref) => null);
 /// 
 /// Determines if device supports native ARCore/ARKit
 /// Returns: Future<bool>
-/// 
-/// TODO: Implement actual AR capability detection using platform channels
 final arCapabilityProvider = FutureProvider<bool>((ref) async {
-  // Placeholder - implement with actual AR capability check
-  await Future.delayed(const Duration(milliseconds: 500));
-  
-  // Check for ARCore availability on Android
-  // For now, return false to trigger WebAR fallback
-  return false; // TODO: Implement real check
+  try {
+    // Check for ARCore availability on Android using arcore_flutter_plugin
+    final isARCoreAvailable = await ArCoreController.checkArCoreAvailability();
+    
+    // Also check if ARCore is installed and up to date
+    final isARCoreInstalled = await ArCoreController.checkIsArCoreInstalled();
+    
+    // Device supports AR if ARCore is available and installed
+    return isARCoreAvailable && isARCoreInstalled;
+  } catch (e) {
+    // If there's any error checking ARCore, fall back to WebAR
+    // This ensures the app works even if ARCore check fails
+    return false;
+  }
 });
 
 // ============================================================================
