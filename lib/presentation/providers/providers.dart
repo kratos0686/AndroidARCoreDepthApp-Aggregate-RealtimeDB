@@ -137,6 +137,9 @@ final lastSyncProvider = StateProvider<DateTime?>((ref) => null);
 /// 
 /// Determines if device supports native ARCore/ARKit
 /// Returns: Future<bool>
+/// 
+/// Note: Currently implements ARCore detection for Android only.
+/// iOS/ARKit support will be added in a future update when iOS platform is supported.
 final arCapabilityProvider = FutureProvider<bool>((ref) async {
   try {
     // Check for ARCore availability on Android using arcore_flutter_plugin
@@ -150,6 +153,7 @@ final arCapabilityProvider = FutureProvider<bool>((ref) async {
   } catch (e) {
     // If there's any error checking ARCore, fall back to WebAR
     // This ensures the app works even if ARCore check fails
+    // (e.g., on iOS devices or devices without ARCore support)
     return false;
   }
 });
