@@ -1,7 +1,9 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_firestore/firebase_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
+import 'package:arcore_flutter_plugin/arcore_flutter_plugin.dart';
 import '../../domain/service/gemini_service.dart';
 import '../../domain/service/export_service.dart';
 import '../../domain/service/iicrc_assistant_service.dart';
@@ -132,19 +134,60 @@ final lastSyncProvider = StateProvider<DateTime?>((ref) => null);
 // FUTURE PROVIDERS (ASYNC OPERATIONS)
 // ============================================================================
 
+/// Timeout duration for ARCore capability checks
+const Duration _arCoreCheckTimeout = Duration(seconds: 5);
+
 /// Future provider for AR capability check
 /// 
 /// Determines if device supports native ARCore/ARKit
 /// Returns: Future<bool>
 /// 
-/// TODO: Implement actual AR capability detection using platform channels
+/// Note: Currently implements ARCore detection for Android only.
+/// iOS/ARKit support will be added in a future update when iOS platform is supported.
 final arCapabilityProvider = FutureProvider<bool>((ref) async {
-  // Placeholder - implement with actual AR capability check
-  await Future.delayed(const Duration(milliseconds: 500));
-  
-  // Check for ARCore availability on Android
-  // For now, return false to trigger WebAR fallback
-  return false; // TODO: Implement real check
+  try {
+    // Run both ARCore checks concurrently for better performance
+    // Both checks have timeout, so max wait time is _arCoreCheckTimeout (not 2x)
+    final results = await Future.wait([
+      ArCoreController.checkArCoreAvailability()
+          .timeout(_arCoreCheckTimeout),
+      ArCoreController.checkIsArCoreInstalled()
+          .timeout(_arCoreCheckTimeout),
+    ]);
+    
+    // Destructure results for clarity
+    final isARCoreAvailable = results[0];
+    final isARCoreInstalled = results[1];
+    
+    if (kDebugMode) {
+      debugPrint('ARCore availability check: $isARCoreAvailable');
+      debugPrint('ARCore installation check: $isARCoreInstalled');
+    }
+    
+    // Device supports AR if ARCore is available and installed
+    final hasARSupport = isARCoreAvailable && isARCoreInstalled;
+    
+    if (kDebugMode) {
+      debugPrint('✓ AR capability detected: $hasARSupport (${hasARSupport ? 'Native ARCore' : 'WebAR fallback'})');
+    }
+    
+    return hasARSupport;
+  } catch (e, stackTrace) {
+    // If there's any error checking ARCore, fall back to WebAR
+    // This ensures the app works even if ARCore check fails
+    // Common scenarios:
+    // - Non-Android platforms (iOS, Web, Desktop)
+    // - Android devices without ARCore support
+    // - Missing or outdated ARCore services
+    // - Timeout if ARCore service is unresponsive
+    
+    if (kDebugMode) {
+      debugPrint('⚠ ARCore check failed: $e - Falling back to WebAR mode');
+      debugPrint('Stack trace: $stackTrace');
+    }
+    
+    return false;
+  }
 });
 
 // ============================================================================
