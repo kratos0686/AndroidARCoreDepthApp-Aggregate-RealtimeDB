@@ -152,6 +152,7 @@ final arCapabilityProvider = FutureProvider<bool>((ref) async {
           .timeout(const Duration(seconds: 5)),
     ]);
     
+    // Destructure results for clarity
     final isARCoreAvailable = results[0];
     final isARCoreInstalled = results[1];
     
@@ -160,8 +161,7 @@ final arCapabilityProvider = FutureProvider<bool>((ref) async {
     
     // Device supports AR if ARCore is available and installed
     final hasARSupport = isARCoreAvailable && isARCoreInstalled;
-    final mode = hasARSupport ? 'ARCore' : 'WebAR fallback';
-    debugPrint('✓ AR capability detected: $hasARSupport (Native $mode)');
+    debugPrint('✓ AR capability detected: $hasARSupport (${hasARSupport ? 'Native ARCore' : 'WebAR fallback'})');
     
     return hasARSupport;
   } catch (e, stackTrace) {
