@@ -156,11 +156,15 @@ final arCapabilityProvider = FutureProvider<bool>((ref) async {
     debugPrint('✓ AR capability detected: $hasARSupport (Native ${hasARSupport ? "ARCore" : "WebAR fallback"})');
     
     return hasARSupport;
-  } catch (e) {
+  } catch (e, stackTrace) {
     // If there's any error checking ARCore, fall back to WebAR
     // This ensures the app works even if ARCore check fails
-    // (e.g., on iOS devices or devices without ARCore support)
+    // Common scenarios:
+    // - Non-Android platforms (iOS, Web, Desktop)
+    // - Android devices without ARCore support
+    // - Missing or outdated ARCore services
     debugPrint('⚠ ARCore check failed: $e - Falling back to WebAR mode');
+    debugPrint('Stack trace: $stackTrace');
     return false;
   }
 });
