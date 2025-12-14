@@ -134,6 +134,9 @@ final lastSyncProvider = StateProvider<DateTime?>((ref) => null);
 // FUTURE PROVIDERS (ASYNC OPERATIONS)
 // ============================================================================
 
+/// Timeout duration for ARCore capability checks
+const Duration _arCoreCheckTimeout = Duration(seconds: 5);
+
 /// Future provider for AR capability check
 /// 
 /// Determines if device supports native ARCore/ARKit
@@ -144,24 +147,29 @@ final lastSyncProvider = StateProvider<DateTime?>((ref) => null);
 final arCapabilityProvider = FutureProvider<bool>((ref) async {
   try {
     // Run both ARCore checks concurrently for better performance
-    // Both checks have 5-second timeout, so max wait time is 5 seconds (not 10)
+    // Both checks have timeout, so max wait time is _arCoreCheckTimeout (not 2x)
     final results = await Future.wait([
       ArCoreController.checkArCoreAvailability()
-          .timeout(const Duration(seconds: 5)),
+          .timeout(_arCoreCheckTimeout),
       ArCoreController.checkIsArCoreInstalled()
-          .timeout(const Duration(seconds: 5)),
+          .timeout(_arCoreCheckTimeout),
     ]);
     
     // Destructure results for clarity
     final isARCoreAvailable = results[0];
     final isARCoreInstalled = results[1];
     
-    debugPrint('ARCore availability check: $isARCoreAvailable');
-    debugPrint('ARCore installation check: $isARCoreInstalled');
+    if (kDebugMode) {
+      debugPrint('ARCore availability check: $isARCoreAvailable');
+      debugPrint('ARCore installation check: $isARCoreInstalled');
+    }
     
     // Device supports AR if ARCore is available and installed
     final hasARSupport = isARCoreAvailable && isARCoreInstalled;
-    debugPrint('✓ AR capability detected: $hasARSupport (${hasARSupport ? 'Native ARCore' : 'WebAR fallback'})');
+    
+    if (kDebugMode) {
+      debugPrint('✓ AR capability detected: $hasARSupport (${hasARSupport ? 'Native ARCore' : 'WebAR fallback'})');
+    }
     
     return hasARSupport;
   } catch (e, stackTrace) {
@@ -172,10 +180,9 @@ final arCapabilityProvider = FutureProvider<bool>((ref) async {
     // - Android devices without ARCore support
     // - Missing or outdated ARCore services
     // - Timeout if ARCore service is unresponsive
-    debugPrint('⚠ ARCore check failed: $e - Falling back to WebAR mode');
     
-    // Only log stack trace in debug mode to avoid exposing sensitive info
     if (kDebugMode) {
+      debugPrint('⚠ ARCore check failed: $e - Falling back to WebAR mode');
       debugPrint('Stack trace: $stackTrace');
     }
     
