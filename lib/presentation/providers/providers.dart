@@ -144,16 +144,20 @@ final lastSyncProvider = StateProvider<DateTime?>((ref) => null);
 final arCapabilityProvider = FutureProvider<bool>((ref) async {
   try {
     // Check for ARCore availability on Android using arcore_flutter_plugin
-    final isARCoreAvailable = await ArCoreController.checkArCoreAvailability();
+    // Timeout prevents hanging if ARCore service is unresponsive
+    final isARCoreAvailable = await ArCoreController.checkArCoreAvailability()
+        .timeout(const Duration(seconds: 5));
     debugPrint('ARCore availability check: $isARCoreAvailable');
     
     // Also check if ARCore is installed and up to date
-    final isARCoreInstalled = await ArCoreController.checkIsArCoreInstalled();
+    final isARCoreInstalled = await ArCoreController.checkIsArCoreInstalled()
+        .timeout(const Duration(seconds: 5));
     debugPrint('ARCore installation check: $isARCoreInstalled');
     
     // Device supports AR if ARCore is available and installed
     final hasARSupport = isARCoreAvailable && isARCoreInstalled;
-    debugPrint('✓ AR capability detected: $hasARSupport (Native ${hasARSupport ? "ARCore" : "WebAR fallback"})');
+    final mode = hasARSupport ? 'ARCore' : 'WebAR fallback';
+    debugPrint('✓ AR capability detected: $hasARSupport (Native $mode)');
     
     return hasARSupport;
   } catch (e, stackTrace) {
@@ -163,6 +167,7 @@ final arCapabilityProvider = FutureProvider<bool>((ref) async {
     // - Non-Android platforms (iOS, Web, Desktop)
     // - Android devices without ARCore support
     // - Missing or outdated ARCore services
+    // - Timeout if ARCore service is unresponsive
     debugPrint('⚠ ARCore check failed: $e - Falling back to WebAR mode');
     debugPrint('Stack trace: $stackTrace');
     return false;
