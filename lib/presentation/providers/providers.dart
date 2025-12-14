@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_firestore/firebase_firestore.dart';
@@ -144,16 +145,22 @@ final arCapabilityProvider = FutureProvider<bool>((ref) async {
   try {
     // Check for ARCore availability on Android using arcore_flutter_plugin
     final isARCoreAvailable = await ArCoreController.checkArCoreAvailability();
+    debugPrint('ARCore availability check: $isARCoreAvailable');
     
     // Also check if ARCore is installed and up to date
     final isARCoreInstalled = await ArCoreController.checkIsArCoreInstalled();
+    debugPrint('ARCore installation check: $isARCoreInstalled');
     
     // Device supports AR if ARCore is available and installed
-    return isARCoreAvailable && isARCoreInstalled;
+    final hasARSupport = isARCoreAvailable && isARCoreInstalled;
+    debugPrint('✓ AR capability detected: $hasARSupport (Native ${hasARSupport ? "ARCore" : "WebAR fallback"})');
+    
+    return hasARSupport;
   } catch (e) {
     // If there's any error checking ARCore, fall back to WebAR
     // This ensures the app works even if ARCore check fails
     // (e.g., on iOS devices or devices without ARCore support)
+    debugPrint('⚠ ARCore check failed: $e - Falling back to WebAR mode');
     return false;
   }
 });
