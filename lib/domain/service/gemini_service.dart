@@ -75,7 +75,9 @@ class GeminiService {
 
   /// Parse Gemini response into structured AnalysisResult
   /// 
-  /// Attempts to parse JSON response, falls back to text parsing if needed
+  /// ⚠️ RESTORE WHEN AI RE-ENABLED: This method is currently unused but should be
+  /// restored when AI features are re-enabled. It attempts to parse JSON response
+  /// and falls back to text parsing if needed.
   AnalysisResult _parseAnalysisResult(String responseText) {
     try {
       // TODO: Implement robust JSON parsing from Gemini response

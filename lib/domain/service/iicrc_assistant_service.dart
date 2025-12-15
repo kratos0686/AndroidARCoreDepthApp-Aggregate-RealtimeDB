@@ -161,13 +161,6 @@ Always provide:
 
   /// Perform psychrometric analysis for drying strategy
   /// 
-  /// [temperature] - Temperature in Fahrenheit
-  /// [relativeHumidity] - Relative humidity percentage
-  /// [grainsPerPound] - Optional GPP reading
-  /// 
-  /// Returns: [PsychrometricAnalysis] with drying recommendations
-  /// Perform psychrometric analysis for drying strategy
-  /// 
   /// ⚠️ AI DISABLED: This method now throws an exception to prevent API calls.
   /// 
   /// [temperature] - Temperature in Fahrenheit
@@ -263,7 +256,8 @@ class WaterDamageAssessment {
   });
 
   factory WaterDamageAssessment.fromResponse(String response) {
-    // TODO: Parse JSON response properly
+    // TODO: Parse JSON response properly when AI is re-enabled
+    // RESTORE WHEN AI RE-ENABLED: Implement proper JSON parsing
     // For now, return with raw response
     return WaterDamageAssessment(
       waterClass: 'Analysis in progress',
@@ -309,7 +303,8 @@ class MoldRemediationAdvice {
   });
 
   factory MoldRemediationAdvice.fromResponse(String response) {
-    // TODO: Parse JSON response properly
+    // TODO: Parse JSON response properly when AI is re-enabled
+    // RESTORE WHEN AI RE-ENABLED: Implement proper JSON parsing
     return MoldRemediationAdvice(
       conditionLevel: 'Analysis in progress',
       affectedAreaSqFt: 'TBD',
@@ -353,7 +348,8 @@ class FireDamageAssessment {
   });
 
   factory FireDamageAssessment.fromResponse(String response) {
-    // TODO: Parse JSON response properly
+    // TODO: Parse JSON response properly when AI is re-enabled
+    // RESTORE WHEN AI RE-ENABLED: Implement proper JSON parsing
     return FireDamageAssessment(
       smokeDamageType: 'Analysis in progress',
       structuralIntegrity: 'TBD',
@@ -398,7 +394,8 @@ class PPERecommendation {
   });
 
   factory PPERecommendation.fromResponse(String response) {
-    // TODO: Parse JSON response properly
+    // TODO: Parse JSON response properly when AI is re-enabled
+    // RESTORE WHEN AI RE-ENABLED: Implement proper JSON parsing
     return PPERecommendation(
       ppeLevel: 'Analysis in progress',
       headProtection: 'TBD',
@@ -444,7 +441,8 @@ class PsychrometricAnalysis {
   });
 
   factory PsychrometricAnalysis.fromResponse(String response) {
-    // TODO: Parse JSON response properly
+    // TODO: Parse JSON response properly when AI is re-enabled
+    // RESTORE WHEN AI RE-ENABLED: Implement proper JSON parsing
     return PsychrometricAnalysis(
       dewPoint: 'Analysis in progress',
       grainsPerPound: 'TBD',
@@ -488,7 +486,8 @@ class DamagePhotoAnalysis {
   });
 
   factory DamagePhotoAnalysis.fromResponse(String response) {
-    // TODO: Parse JSON response properly
+    // TODO: Parse JSON response properly when AI is re-enabled
+    // RESTORE WHEN AI RE-ENABLED: Implement proper JSON parsing
     return DamagePhotoAnalysis(
       materials: [],
       damageType: 'Analysis in progress',
