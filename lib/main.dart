@@ -12,7 +12,7 @@ void main() async {
   
   try {
     // Load environment variables (.env.local if exists, else .env)
-    // Note: .env.local must be added to pubspec.yaml assets for local dev
+    // Note: To use .env.local, uncomment it in pubspec.yaml assets and create the file locally
     try {
       await dotenv.load(fileName: '.env.local');
     } catch (_) {
