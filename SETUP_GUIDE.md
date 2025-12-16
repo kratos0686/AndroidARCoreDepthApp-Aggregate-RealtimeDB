@@ -230,27 +230,71 @@ Use your CI/CD platform's secret manager:
 
 **⚠️ WARNING**: Only for local development, never commit API keys!
 
+Choose one of these approaches:
+
+#### Approach A: Use `--dart-define` at build time (Recommended)
+
+Inject environment variables at compile time without needing `.env` files:
+
+```bash
+# Run with API key injected at build time
+flutter run --dart-define=GEMINI_API_KEY=your_actual_key_here
+
+# Or build with injected key
+flutter build apk --dart-define=GEMINI_API_KEY=your_actual_key_here
+```
+
+Access in code via:
+```dart
+const geminiApiKey = String.fromEnvironment('GEMINI_API_KEY');
+```
+
+**Tip**: Create a shell script for convenience (don't commit it):
+```bash
+# local_run.sh (add to .gitignore)
+flutter run --dart-define=GEMINI_API_KEY=your_key_here
+```
+
+#### Approach B: Conditionally include `.env.local` in assets
+
 1. Create `.env.local` file:
    ```bash
    echo ".env.local" >> .gitignore
    echo "GEMINI_API_KEY=your_actual_key_here" > .env.local
    ```
 
-2. Update `main.dart` to load `.env.local`:
+2. Add `.env.local` to assets in `pubspec.yaml` (only during local development):
+   ```yaml
+   flutter:
+     assets:
+       - .env
+       - .env.local  # Add this line locally, don't commit
+   ```
+
+3. Update `main.dart` to try loading `.env.local` first:
    ```dart
-   import 'dart:io';
-   
    Future<void> main() async {
-     // Load .env.local if it exists (for local dev)
-     final localEnvFile = File('.env.local');
-     if (await localEnvFile.exists()) {
+     WidgetsFlutterBinding.ensureInitialized();
+
+     // Try loading .env.local first (for local dev), fallback to .env
+     try {
        await dotenv.load(fileName: '.env.local');
-     } else {
+     } catch (_) {
        await dotenv.load(fileName: '.env');
      }
      // ... rest of initialization
    }
    ```
+
+   **Note**: `flutter_dotenv` loads from bundled assets, not the filesystem.
+   The `.env.local` file must be listed in `pubspec.yaml` assets to be available.
+
+#### Approach C: Use build flavors
+
+For more structured environment management, configure Flutter build flavors:
+- Create separate `main_dev.dart` and `main_prod.dart` entry points
+- Use `--flavor` flag with different configurations
+- See Flutter docs: https://docs.flutter.dev/deployment/flavors
 
 3. Remove AI-disabled stubs in:
    - `lib/domain/service/gemini_service.dart` (initialize() method and network methods)
