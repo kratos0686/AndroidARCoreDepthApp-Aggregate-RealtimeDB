@@ -11,8 +11,13 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   try {
-    // Load environment variables (.env file)
-    await dotenv.load(fileName: ".env");
+    // Load environment variables (.env.local if exists, else .env)
+    // Note: .env.local must be added to pubspec.yaml assets for local dev
+    try {
+      await dotenv.load(fileName: '.env.local');
+    } catch (_) {
+      await dotenv.load(fileName: '.env');
+    }
     
     // Initialize Firebase
     // Note: Add google-services.json to android/app/ before running
