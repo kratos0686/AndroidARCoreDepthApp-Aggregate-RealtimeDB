@@ -61,3 +61,5 @@ flutter:
   uses-material-design: true
   assets:
     - .env
+    # Uncomment the next line if using .env.local for local development
+    # - .env.local
