@@ -30,6 +30,9 @@ migrate_working_dir/
 .pub/
 /build/
 
+# Environment files with secrets
+.env.local
+
 # Android related
 **/android/**/gradle-wrapper.jar
 **/android/.gradle
